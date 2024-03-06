@@ -1,0 +1,14 @@
+<h3 class="text-center font-weight-bold p-5">SIGN IN</h3>
+<div class="form-group my-3">
+    <input [(ngModel)]="account.username" class="form-control py-2 " type="text" placeholder="Enter phone number" autofocus/>
+</div>
+<div class="form-group my-3">
+    <input [(ngModel)]="account.password" class="form-control py-2" type="password" placeholder="Enter password"/>
+</div>
+<div class="text-danger">{{errorMessage}}</div>
+<button (click)="signIn()" class="btn form-control btn-success py-2 mt-3" type="button">Sign in</button>
+<div class="text-center p-2 mt-5">
+    <div class="small text-secondary">Don't have an account?
+        <a routerLink="/auth/signup">Sign up now</a>
+    </div>
+</div>

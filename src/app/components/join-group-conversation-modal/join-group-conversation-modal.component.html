@@ -1,0 +1,17 @@
+<div class="modal-header">
+    <h5 class="modal-title">User account</h5>
+    <button (click)="onClose()" type="button" class="btn-close" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="mb-2">
+        <label for="conversationLink" class="form-label">Conversation link</label>
+        <input id="conversationLink" type="text" class="form-control" placeholder="Type a conversation link"/>
+    </div>
+    <div class="mb-2">
+        <p class="small text-danger"></p>
+    </div>
+</div>
+<div class="modal-footer">
+    <button (click)="onClose()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button (click)="onJoin()" type="button" class="btn btn-success">Join</button>
+</div>

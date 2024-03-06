@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <h5 class="modal-title">Add contact</h5>
+    <button (click)="onClose()" type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal" ></button>
+</div>
+<div class="modal-body">
+    <div class="mb-5 row">
+        <div class="col-9">
+            <input #fileInput class="form-control" type="text">
+        </div>
+        <div class="col-3">
+            <button (click)="onFind(fileInput.value)" class="btn btn-success w-100">Find</button>
+        </div>
+    </div>
+    <div class="mb-2 d-flex justify-content-center">
+        <img src="assets/images/mark.jpg" class="rounded-circle border border-secondary"
+                width="100" height="100">
+    </div>
+    <div class="mb-2">
+        <label for="nameInput" class="form-label">Name</label>
+        <input id="nameInput" type="text" class="form-control" disabled>
+    </div>
+    <div class="mb-2">
+        <div class="small text-danger"></div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button (click)="onClose()" type="button" class="btn btn-secondary">Close</button>
+    <button (click)="onSend()" type="button" class="btn btn-success">Send request</button>
+</div>

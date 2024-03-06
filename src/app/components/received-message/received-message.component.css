@@ -1,0 +1,9 @@
+.message-wrapper {
+    width: 40%;
+    max-width: 70%;
+    min-width: 40%;
+}
+
+.bg-light-grey {
+    background-color: #f0f2f5;
+}

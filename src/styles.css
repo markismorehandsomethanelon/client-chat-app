@@ -1,0 +1,8 @@
+/* You can add global styles to this file, and also import other style files */
+i.fas, .list-group-item, img {
+    cursor: pointer!important;
+}
+
+.selected {
+    background-color: #D6DBE0!important;
+}

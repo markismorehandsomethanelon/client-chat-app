@@ -1,0 +1,27 @@
+<!-- Conversations area -->
+<div class="row h-100">
+    <!-- Left container -->
+    <div class="col-md-4 h-100 pe-0 border-end">
+        <!-- Left header -->
+        <div class="d-flex justify-content-between align-items-center px-2 py-1 border-bottom">
+            <!-- Current user's avatar -->
+            <img (click)="openUserProfileModal()" class="rounded-circle" src="{{currentUser.avatar}}" alt="Avatar"
+                 width="50px" height="50px"/>
+            <div class="d-flex">
+                <i (click)="openCreateGroupConversation()" class="fas fa-plus me-3"></i>
+               <i id="conversationsEllipsisDropdown" class="fas fa-ellipsis-vertical me-3" data-bs-toggle="dropdown" aria-expanded="false"></i>
+               <div class="dropdown">
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="conversationsEllipsisDropdown">
+                        <button (click)="openChangePasswordModal()" class="dropdown-item">Change password</button>
+                        <button (click)="openJoinGroupConversationModal()" class="dropdown-item">Join group conversation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <app-conversation-list></app-conversation-list>
+    </div>
+    <!-- Right container -->
+    <div class="col-md-8 h-100 px-3 bg-white">
+        <router-outlet></router-outlet>
+    </div>
+</div>
