@@ -1,71 +1,60 @@
 import { Injectable } from '@angular/core';
-import { Conversation } from '../models/conversation';
-import { Message } from '../models/message';
+import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
+import { API_BASE_URL } from '../config';
+import { HttpClient } from '@angular/common/http';
+import { GroupConversation } from '../models/group-conversation';
 import { User } from '../models/user';
-import { Observable, of } from 'rxjs';
+import { Conversation } from '../models/conversation';
+import { tap } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConversationService {
 
-//   conversations: Conversation[] = [
-//     { 
-//         id: 1,
-//         lastestMessage: new Message(1, new User(1, 'Alice'), 'This is content 1', "01-03-24 10:00:00"),
-//         messages: [
-//           new Message(1, new User(1, 'Alice'), 'This is content 1', '2002')
-//         ]       
-//       },
-//       { 
-//         id: 2,
-//         lastestMessage: new Message(2, new User(2, 'Bob'), 'This is content 2', "01-03-24 10:05:00"),
-//         messages: [
-//           new Message(1, new User(1, 'Alice'), 'This is content 1', '2002'),
-//           new Message(1, new User(2, 'Bob'), 'This is content 10', '2002')
-//         ]   
-//       },
-//       { 
-//         id: 3,
-//         lastestMessage: new Message(3, new User(1, 'Alice'), 'This is content 3', "01-03-24 10:10:00"),
-//         messages: [
-//           new Message(1, new User(1, 'Alice'), 'This is content 1', '2002')
-//         ]   
-//       },
-//       { 
-//         id: 4,
-//         lastestMessage: new Message(4, new User(2, 'Bob'), 'This is content 4', "01-03-24 10:15:00"),
-//         messages: [
-//           new Message(1, new User(1, 'Alice'), 'This is content 1', '2002'),
-//           new Message(1, new User(2, 'Bob'), 'This is content 10', '2002')
-//         ]   
-//       },
-//       { 
-//         id: 5,
-//         lastestMessage: new Message(5, new User(2, 'Bob'), 'This is content 5', "01-03-24 10:15:00"),
-//         messages: [
-//           new Message(1, new User(1, 'Alice'), 'This is content 1', '2002'),
-//           new Message(1, new User(2, 'Bob'), 'This is content 10', '2002')
-//         ]   
-//       }
-// ];
+    private conversationUrl = `${API_BASE_URL}/conversations`;
+    private groupConversationUrl = `${API_BASE_URL}/groupConversations`;
+    private individualConversationUrl = `${API_BASE_URL}/individualConversations`;
+    
+    private conversationsSubject = new Subject<void>();
 
-  constructor() {
+    constructor(private http: HttpClient) {
 
-  }
-
-  findAll(): Observable<Conversation[]> {
-      // return of(this.conversations);
-      return of();
     }
 
-  findById(id: number): Observable<Conversation> {
-    // return of(this.conversations.find(item => item.id == id));
-    return of();
-  }
+    findByMember(user: User): Observable<any> {
+      return this.http.get(`${this.conversationUrl}/members/${user.id}`);
+    }
 
-  save(conversation: Conversation): void {
-    // this.conversations.push(conversation);
-  }
+    findById(id: number): Observable<any> {
+      return this.http.get(`${this.conversationUrl}/${id}`);
+    }
+
+    createGroupConversation(groupConversation: GroupConversation): Observable<any> {
+      // return this.http.post(this.groupConversationUrl, groupConversation);
+      return this.http.post<any>(this.groupConversationUrl, groupConversation).pipe(
+        tap(() => this.conversationsSubject.next())
+      );
+    }
+
+    updateGroupConversation(groupConversation: GroupConversation): Observable<any> {
+      // return this.http.post(this.groupConversationUrl, groupConversation);
+      return this.http.put<any>(this.groupConversationUrl, groupConversation).pipe(
+        tap(() => this.conversationsSubject.next())
+      );
+    }
+    
+    onConversationsChanged(): Observable<void> {
+      return this.conversationsSubject.asObservable();
+    }
+
+    // saveIndividualConversation(individualConversation: any): Observable<any> {
+    //   return this.http.post(this.groupConversationUrl, individualConversation);
+    // }
+
+    notifyConversationsChanged() {
+      this.conversationsSubject.next();
+    }
   
 }

@@ -1,4 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Conversation } from 'src/app/models/conversation';
+import { GroupConversation } from 'src/app/models/group-conversation';
+import { User } from 'src/app/models/user';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
 
 @Component({
@@ -10,11 +15,14 @@ export class GroupConversationModalComponent implements OnInit {
 
   title: string;
 
+  groupConversation: GroupConversation = new GroupConversation();
+
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  image: string | ArrayBuffer | null = '';
+  errorMessage?: string;
 
-  constructor(private groupConversationModalService: GroupConversationModalService){
+  constructor(private groupConversationModalService: GroupConversationModalService,
+    private conversationService: ConversationService){
 
   }
   
@@ -22,6 +30,37 @@ export class GroupConversationModalComponent implements OnInit {
   }
 
   onSave(): void {
+    if (this.groupConversation.id){
+      this.onUpdate();
+      return;
+    }
+    const CURRENT_USER: User = JSON.parse(sessionStorage.getItem('currentUser'));
+    this.groupConversation.ownedBy = CURRENT_USER;
+    this.onCreate(CURRENT_USER);
+  }
+
+  onCreate(CURRENT_USER: User): void {
+    this.conversationService.createGroupConversation(this.groupConversation).subscribe(
+      () => {
+        this.groupConversationModalService.closeModal();
+      },
+      (errorResponse) => {
+        this.errorMessage = errorResponse.error.message;
+      }
+    );
+
+  }
+
+  onUpdate(): void {
+    this.conversationService.updateGroupConversation(this.groupConversation).subscribe(
+      () => {
+        this.groupConversationModalService.closeModal();
+      },
+      (errorResponse) => {
+        this.errorMessage = errorResponse.error.message;
+      }
+    );
+
   }
 
   onClose(): void {
@@ -32,12 +71,16 @@ export class GroupConversationModalComponent implements OnInit {
     this.title = title;
   }
 
+  setObject(groupConversation: GroupConversation): void{
+    this.groupConversation = groupConversation;
+  }
+
   changeFile(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.image = e.target?.result;
+        this.groupConversation.avatar = e.target.result.toString();
       };
       reader.readAsDataURL(file);
     }
@@ -46,5 +89,6 @@ export class GroupConversationModalComponent implements OnInit {
   chooseFile(): void {
     this.fileInput.nativeElement.click();
   }
+
 
 }

@@ -8,9 +8,11 @@ import { JoinGroupConversationModalComponent } from '../join-group-conversation-
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
 import { GroupConversationModalComponent } from '../group-conversation-modal/group-conversation-modal.component';
 import { User } from 'src/app/models/user';
-import { Util } from 'src/app/utils/util';
-import { DomSanitizer } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { ChangePasswordRequest } from 'src/app/requests/change-password.request';
+import { GroupConversation } from 'src/app/models/group-conversation';
+import { ConversationService } from 'src/app/services/conversation.service';
 
 @Component({
   selector: 'app-conversations',
@@ -25,7 +27,9 @@ export class ConversationsComponent implements OnInit {
       private changePasswordModalService: ChangePasswordModalService,
       private joinConversationModalService: JoinGroupConversationModalService,
       private groupConversationModalService: GroupConversationModalService,
-      private userService: UserService
+      private userService: UserService,
+      private authService: AuthService,
+      private conversationService: ConversationService
     ) {}
   
   ngOnInit(): void {
@@ -52,7 +56,17 @@ export class ConversationsComponent implements OnInit {
   }
 
   openChangePasswordModal(): void {
-   this.changePasswordModalService.openModal(ChangePasswordModalComponent);
+    this.changePasswordModalService.openModal(ChangePasswordModalComponent);
+    this.changePasswordModalService.saveModal$.subscribe((request: ChangePasswordRequest) => {
+      this.authService.changePassword(request).subscribe(
+        responseSuccess => {
+          this.changePasswordModalService.closeModal();
+        },
+        responseError => {
+          this.changePasswordModalService.showMessage(responseError.error.message);
+        }
+      );
+    });
   }
 
   openJoinGroupConversationModal(): void {
@@ -60,6 +74,18 @@ export class ConversationsComponent implements OnInit {
   }
 
   openCreateGroupConversation(): void {
-    this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation");
+    this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
+    // const saveSubscription = this.groupConversationModalService.saveModal$.subscribe((groupConversation: GroupConversation) => {
+    //   this.conversationService.saveGroupConversation(groupConversation).subscribe(
+    //     responseSuccess => {
+    //       this.conversationService.notifyConversationsChanged();
+    //       this.groupConversationModalService.closeModal();
+    //     },
+    //     responseError => {
+    //       this.groupConversationModalService.showMessage(responseError.error.message);
+    //     }
+    //   );
+    // });
+    // saveSubscription.unsubscribe();
   }
 }

@@ -5,15 +5,15 @@
 <div class="modal-body">
     <div class="mb-2 d-flex justify-content-center">
         <input #fileInput (change)="changeFile($event)" type="file" class="d-none" accept="image/*">
-        <img src="assets/images/mark.jpg" (click)="chooseFile()" class="rounded-circle border border-secondary"
+        <img src="{{groupConversation.avatar}}" (click)="chooseFile()" class="rounded-circle border border-secondary"
                 width="100" height="100">
     </div>
     <div class="mb-2">
         <label for="nameInput" class="form-label">Name</label>
-        <input id="nameInput" type="text" class="form-control" autofocus>
+        <input [(ngModel)]="groupConversation.name" id="nameInput" type="text" class="form-control" autofocus>
     </div>
     <div class="mb-2">
-        <div class="small text-danger"></div>
+        <div class="text-danger">{{errorMessage}}</div>
     </div>
 </div>
 <div class="modal-footer">

@@ -18,20 +18,22 @@
 <!-- Conversations -->
 <div class="left-list-group list-group overflow-auto">
     <a class="list-group-item list-group-item-action text-secondary"
-    *ngFor="let conversation of (conversations$ | async)"
+    *ngFor="let conversation of filteredConversations"
     [conversation]="conversation"
     [routerLink]="['/conversations', conversation.id]"
     routerLinkActive="selected"
     >
         <div class="d-flex align-items-center">
-            <img class="rounded-circle" src="assets/images/mark.jpg" alt=" " width="50" height="50"/>
+            <img class="rounded-circle" src="{{getConversationAvatar(conversation)}}" alt=" " width="50" height="50"/>
             <div class="ms-3 min-w-0 w-100">
                 <div class="d-flex justify-content-between align-items-center">
-                    <p class="my-auto text-truncate font-weight-bold flex-grow-1">Conversation name</p>
-                    <p class="my-auto ms-3 small flex-shrink-0">{{conversation.lastestMessage.sentAt}}</p>
+                    <p class="my-auto text-truncate font-weight-bold flex-grow-1">
+                        {{ getConversationName(conversation) }}
+                    </p>
+                    <p class="my-auto ms-3 small flex-shrink-0">{{conversation.lastestMessage?.sentAt}}</p>
                 </div>
                 <div class="d-flex justify-content-between mt-2">
-                    <p class="my-auto small text-truncate w-100">{{conversation.lastestMessage.content}}</p>
+                    <p class="my-auto small text-truncate w-100">{{conversation?.lastestMessage?.content}}</p>
                     <p class="my-auto badge bg-success badge-pill ms-3">1</p>
                 </div>
             </div>

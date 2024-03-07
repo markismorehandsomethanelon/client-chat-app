@@ -1,62 +1,64 @@
-<div class="d-flex flex-column h-100">
-    <!-- Header -->
-    <div class="d-flex justify-content-between border-bottom px-2 py-1 flex-grow-0">
-        <div class="d-flex align-items-center" style="width: 40%">
-            <img (click)="openUpdateGroupConversationModal()" id="selected-conversation-avatar" class="rounded-circle" src="assets/images/mark.jpg" alt="ChatAvatar" width="50" height="50"/>
-            <div class="ms-3 min-w-0">
-                <div class="h6 text-truncate font-weight-bold m-0">Hello</div>
-                <a>
-                    <small class="text-muted">number of users</small>
-                </a>
-            </div>
-        </div>
-        <div class="d-flex align-items-center">
-            <i class="fas fa-video-camera me-3" aria-hidden="true"></i>
-            <i class="fas fa-phone me-3" aria-hidden="true"></i>
-            <i class="fas fa-search me-3" aria-hidden="true"></i>
-            <div class="input-group me-3 d-none" >
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                    </span>
-                </div>
-                <input type="text" class="form-control" placeholder="Search messages...">
-            </div>
-            <div class="dropdown">
-                <i id="dropdownMenuButton" class="fas fa-ellipsis-vertical h-100 me-3" data-toggle="dropdown"
-                   aria-haspopup="true" aria-hidden="true"></i>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                    <button type="button" class="dropdown-item">Copy conversation link </button>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item text-danger" type="button" >Leave conversation</button>
+<ng-container *ngIf="conversation">
+    <div class="d-flex flex-column h-100">
+        <!-- Header -->
+        <div class="d-flex justify-content-between border-bottom px-2 py-1 flex-grow-0">
+            <div class="d-flex align-items-center" style="width: 40%">
+                <img (click)="openUpdateGroupConversationModal()" [src]="getConversationAvatar()" class="rounded-circle"  alt="ChatAvatar" width="50" height="50"/>
+                <div class="ms-3 min-w-0">
+                    <div class="h6 text-truncate font-weight-bold m-0">{{getConversationName()}}</div>
+                    <a>
+                        <small class="text-muted">number of users</small>
+                    </a>
                 </div>
             </div>
+            <div class="d-flex align-items-center">
+                <i class="fas fa-video-camera me-3" aria-hidden="true"></i>
+                <i class="fas fa-phone me-3" aria-hidden="true"></i>
+                <i class="fas fa-search me-3" aria-hidden="true"></i>
+                <div class="input-group me-3 d-none" >
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Search messages...">
+                </div>
+                <div class="dropdown">
+                    <i id="dropdownMenuButton" class="fas fa-ellipsis-vertical h-100 me-3" data-toggle="dropdown"
+                       aria-haspopup="true" aria-hidden="true"></i>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                        <button type="button" class="dropdown-item">Copy conversation link </button>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item text-danger" type="button" >Leave conversation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Chat window -->
+        <div scrollToBottom class="border-bottom overflow-auto flex-grow-1">
+            <ng-container *ngFor="let message of conversation?.messages">
+                <ng-container *ngIf="isSentMessage(message)">
+                    <app-sent-message [message]="message"></app-sent-message>
+                </ng-container>
+                <ng-container *ngIf="isReceivedMessage(message)">
+                    <app-received-message [message]="message"></app-received-message>
+                </ng-container>
+            </ng-container>
+        </div>
+        <!-- Input area -->
+        <div class="d-flex align-items-center flex-grow-0" style="margin-bottom: 38px">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-smile-o me-3"  aria-hidden="true"></i>
+                <i class="fas fa-paperclip me-3" aria-hidden="true"></i>
+                <i class="fas fa-microphone me-3" aria-hidden="true"></i>
+            </div>
+            <div class="flex-grow-1">
+                <textarea (click)="onClick()" id="send-message-input" class="py-3 form-control " type="text-area" rows="1"
+                          placeholder="Type a message..."></textarea>
+            </div>
+            <div class="d-flex align-items-center ms-2">
+                <i class="fas fa-paper-plane me-3" aria-hidden="true"></i>
+            </div>
         </div>
     </div>
-    <!-- Chat window -->
-    <div scrollToBottom class="border-bottom overflow-auto flex-grow-1">
-        <ng-container *ngFor="let message of (conversation$ | async).messages">
-            <app-sent-message [message]="message"></app-sent-message>
-            <app-received-message [message]="message"></app-received-message>
-            <app-sent-message [message]="message"></app-sent-message>
-            <app-received-message [message]="message"></app-received-message>
-            <app-sent-message [message]="message"></app-sent-message>
-            <app-received-message [message]="message"></app-received-message>
-        </ng-container>
-    </div>
-    <!-- Input area -->
-    <div class="d-flex align-items-center flex-grow-0" style="margin-bottom: 38px">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-smile-o me-3"  aria-hidden="true"></i>
-            <i class="fas fa-paperclip me-3" aria-hidden="true"></i>
-            <i class="fas fa-microphone me-3" aria-hidden="true"></i>
-        </div>
-        <div class="flex-grow-1">
-            <textarea (click)="onClick()" id="send-message-input" class="py-3 form-control " type="text-area" rows="1"
-                      placeholder="Type a message..."></textarea>
-        </div>
-        <div class="d-flex align-items-center ms-2">
-            <i class="fas fa-paper-plane me-3" aria-hidden="true"></i>
-        </div>
-    </div>
-</div>
+</ng-container>
