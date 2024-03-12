@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-main',
@@ -7,9 +9,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainComponent implements OnInit {
 
-  constructor() { }
+  subscription: Subscription;
+
+  render: boolean = false;
+
+  constructor(private webSocketService: WebSocketService) {}
 
   ngOnInit(): void {
+    this.webSocketService.connect();
+    this.webSocketService.onConnected().subscribe(() => {
+      this.render = true;
+    });
   }
 
+  ngOnDestroy() {
+    this.webSocketService.disconnect();
+  }
 }

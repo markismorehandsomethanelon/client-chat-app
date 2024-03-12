@@ -6,7 +6,7 @@ import { ChangePasswordModalComponent } from '../change-password-modal/change-pa
 import { JoinGroupConversationModalService } from 'src/app/services/join-group-conversation-modal.service';
 import { JoinGroupConversationModalComponent } from '../join-group-conversation-modal/join-group-conversation-modal.component';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
-import { GroupConversationModalComponent } from '../group-conversation-modal/group-conversation-modal.component';
+import { GroupConversationModalComponent } from 'src/app/components/group-conversation-modal/group-conversation-modal.component';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -75,17 +75,5 @@ export class ConversationsComponent implements OnInit {
 
   openCreateGroupConversation(): void {
     this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
-    // const saveSubscription = this.groupConversationModalService.saveModal$.subscribe((groupConversation: GroupConversation) => {
-    //   this.conversationService.saveGroupConversation(groupConversation).subscribe(
-    //     responseSuccess => {
-    //       this.conversationService.notifyConversationsChanged();
-    //       this.groupConversationModalService.closeModal();
-    //     },
-    //     responseError => {
-    //       this.groupConversationModalService.showMessage(responseError.error.message);
-    //     }
-    //   );
-    // });
-    // saveSubscription.unsubscribe();
   }
 }

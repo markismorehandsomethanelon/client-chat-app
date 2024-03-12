@@ -1,42 +1,50 @@
-<!-- Search bar -->
-<div class="m-2">
-    <select class="form-select">
-        <option value="1">Newest-Oldest</option>
-        <option value="2">Oldest-Newest</option>
-        <option value="3">a-z</option>
-        <option value="4">z-a</option>
-    </select>
-</div>
-<div class="m-2">
-    <div class="input-group">
-        <span class="input-group-text">
-            <i class="fas fa-search"></i>
-        </span>
-        <input type="text" class="form-control" placeholder="Search..." (input)="search($event.target.value)" >
+<div class="d-flex flex-column h-100">
+    <!-- Search bar -->
+    <div class="flex-grow-0">
+        <div class="m-2">
+            <select class="form-select">
+                <option value="1">Newest-Oldest</option>
+                <option value="2">Oldest-Newest</option>
+                <option value="3">a-z</option>
+                <option value="4">z-a</option>
+            </select>
+        </div>
     </div>
-</div>
-<!-- Conversations -->
-<div class="left-list-group list-group overflow-auto">
-    <a class="list-group-item list-group-item-action text-secondary"
-    *ngFor="let conversation of filteredConversations"
-    [conversation]="conversation"
-    [routerLink]="['/conversations', conversation.id]"
-    routerLinkActive="selected"
-    >
-        <div class="d-flex align-items-center">
-            <img class="rounded-circle" src="{{getConversationAvatar(conversation)}}" alt=" " width="50" height="50"/>
-            <div class="ms-3 min-w-0 w-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <p class="my-auto text-truncate font-weight-bold flex-grow-1">
-                        {{ getConversationName(conversation) }}
-                    </p>
-                    <p class="my-auto ms-3 small flex-shrink-0">{{conversation.lastestMessage?.sentAt}}</p>
-                </div>
-                <div class="d-flex justify-content-between mt-2">
-                    <p class="my-auto small text-truncate w-100">{{conversation?.lastestMessage?.content}}</p>
-                    <p class="my-auto badge bg-success badge-pill ms-3">1</p>
-                </div>
+    <div class="flex-grow-0">
+        <div class="m-2 flex-grow-0">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Search..." (input)="search($event.target.value)" >
             </div>
         </div>
-    </a>
+    </div>
+    <!-- Conversations -->
+    <div class="flex-grow-1 overflow-auto">
+        <div class="left-list-group list-group">
+            <a class="list-group-item list-group-item-action text-secondary"
+            *ngFor="let conversation of filteredConversations"
+            [conversation]="conversation"
+            [routerLink]="['/conversations', conversation.id]"
+            routerLinkActive="selected"
+            >
+                <div class="d-flex align-items-center">
+                    <img class="rounded-circle" src="{{getConversationAvatar(conversation)}}" alt=" " width="50" height="50"/>
+                    <div class="ms-3 min-w-0 w-100">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="my-auto text-truncate font-weight-bold flex-grow-1">
+                                {{ getConversationName(conversation) }}
+                            </p>
+                            <p class="my-auto ms-3 small flex-shrink-0">{{conversation.lastestMessage?.sentAt | date: 'dd/MM/yyyy HH:mm:ss'}}</p>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <p class="my-auto small text-truncate w-100">{{conversation?.lastestMessage?.content}}</p>
+                            <p class="my-auto badge bg-success badge-pill ms-3">1</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>

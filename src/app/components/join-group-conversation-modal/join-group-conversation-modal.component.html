@@ -5,11 +5,9 @@
 <div class="modal-body">
     <div class="mb-2">
         <label for="conversationLink" class="form-label">Conversation link</label>
-        <input id="conversationLink" type="text" class="form-control" placeholder="Type a conversation link"/>
+        <input #conversationLinkInput id="conversationLink" type="text" class="form-control" placeholder="Type a conversation link"/>
     </div>
-    <div class="mb-2">
-        <p class="small text-danger"></p>
-    </div>
+    <div class="text-danger">{{errorMessage}}</div>
 </div>
 <div class="modal-footer">
     <button (click)="onClose()" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

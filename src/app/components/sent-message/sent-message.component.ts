@@ -8,6 +8,9 @@ import { Message } from 'src/app/models/message';
 })
 export class SentMessageComponent implements OnInit {
 
+
+  @Input() messageType: string;
+
   @Input() message: Message;
 
   constructor() { }

@@ -7,22 +7,20 @@ import { Subject } from "rxjs";
 })
 export class ConfirmModalService {
     private modalRef: NgbModalRef;
-
-    private closeModalSubject = new Subject<void>();
-
-    closeModal$ = this.closeModalSubject.asObservable();
+    action: string;
 
     constructor(private modalService: NgbModal) {}
 
-    openModal(component: any): NgbModalRef {
+    openModal(component: any, action: string, data: any): NgbModalRef {
         this.modalRef = this.modalService.open(component);
+        this.action = action;
+        this.modalRef.componentInstance.setData(data);
         return this.modalRef;
     }
 
     closeModal(): void {
         if (this.modalRef){
             this.modalRef.close();
-            this.closeModalSubject.next();
         }
     }
 

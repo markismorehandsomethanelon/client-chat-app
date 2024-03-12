@@ -19,5 +19,9 @@ export class UserService {
     save(user: User): Observable<any> {
       return this.http.put(this.userUrl, user);
     }
+
+    findUser(userId: number): Observable<any> {
+      return this.http.get(`${this.userUrl}/${userId}`);
+    }
   
 }

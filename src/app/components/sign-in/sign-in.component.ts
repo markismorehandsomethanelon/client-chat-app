@@ -23,7 +23,6 @@ export class SignInComponent implements OnInit {
     this.authService.signIn(this.account)
       .subscribe(
         responseSuccess => {
-          // response.data returns user object
           sessionStorage.setItem('currentUser', JSON.stringify(responseSuccess.data));
           this.router.navigate(['/conversations']);
         },

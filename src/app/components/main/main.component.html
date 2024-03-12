@@ -1,8 +1,10 @@
 <!-- Modal area -->
 <div class="d-flex p-0 h-100">
+  <ng-container *ngIf="render == true">
     <app-sidebar></app-sidebar>
     <div class="flex-grow-1">
       <router-outlet></router-outlet>
     </div>
+  </ng-container>
 </div>
 <app-footer></app-footer>

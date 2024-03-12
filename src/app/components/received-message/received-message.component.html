@@ -12,7 +12,12 @@
                 </div>
             </div>
             <div>
-                <p>{{message.content}}</p>
+                <p *ngIf="messageType == 'TEXT'">
+                    {{message.content}}
+                </p>
+                <!-- <ng-container *ngIf="(message as any)?.content !== undefined">
+                    <p>{{ (message as any).content }}</p>
+                </ng-container> -->
                 <!-- <th:block th:switch="${message.class.name}">
                     <th:block th:case="'chatapp.entity.TextMessageEntity'">
                         <p class="mx-2" th:text="${message.content}"></p>
@@ -27,7 +32,7 @@
                 </th:block> -->
             </div>
             <div class="d-flex justify-content-end">
-                <small>{{message.sentAt}}</small>
+                <small>{{message.sentAt | date: 'dd/MM/yyyy HH:mm:ss'}}</small>
             </div>
         </div>
     </div>

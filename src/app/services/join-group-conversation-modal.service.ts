@@ -8,10 +8,6 @@ import { Subject } from "rxjs";
 export class JoinGroupConversationModalService {
     private modalRef: NgbModalRef;
 
-    private closeModalSubject = new Subject<void>();
-
-    closeModal$ = this.closeModalSubject.asObservable();
-
     constructor(private modalService: NgbModal) {}
 
     openModal(component: any): NgbModalRef {
@@ -22,7 +18,6 @@ export class JoinGroupConversationModalService {
     closeModal(): void {
         if (this.modalRef){
             this.modalRef.close();
-            this.closeModalSubject.next();
         }
     }
 

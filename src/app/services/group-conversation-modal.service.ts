@@ -1,8 +1,5 @@
 import { Injectable } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { Subject } from "rxjs";
-import { Conversation } from "../models/conversation";
-import { GroupConversation } from "../models/group-conversation";
 
 @Injectable({
     providedIn: 'root'

@@ -11,16 +11,18 @@
             <button (click)="onFind(fileInput.value)" class="btn btn-success w-100">Find</button>
         </div>
     </div>
-    <div class="mb-2 d-flex justify-content-center">
-        <img src="assets/images/mark.jpg" class="rounded-circle border border-secondary"
-                width="100" height="100">
-    </div>
+    <ng-container *ngIf="foundUser">
+        <div class="mb-2 d-flex justify-content-center">
+            <img src="{{foundUser.avatar}}" class="rounded-circle border border-secondary"
+                    width="100" height="100">
+        </div>
+        <div class="mb-2">
+            <label for="nameInput" class="form-label">Name</label>
+            <input id="nameInput" type="text" class="form-control" value="{{foundUser.name}}" disabled>
+        </div>
+    </ng-container>
     <div class="mb-2">
-        <label for="nameInput" class="form-label">Name</label>
-        <input id="nameInput" type="text" class="form-control" disabled>
-    </div>
-    <div class="mb-2">
-        <div class="small text-danger"></div>
+        <div class="text-danger">{{errorMessage}}</div>
     </div>
 </div>
 <div class="modal-footer">

@@ -6,5 +6,4 @@ export class Conversation {
     lastestMessage: Message;
     messages: Message[];
     members: User[];
-
 }

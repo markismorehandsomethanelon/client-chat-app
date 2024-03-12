@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { JoinGroupConversationRequest } from 'src/app/requests/join-group-conversation.request';
+import { ConversationService } from 'src/app/new-services/new-conversation.service';
 import { JoinGroupConversationModalService } from 'src/app/services/join-group-conversation-modal.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-join-group-conversation-modal',
@@ -8,7 +11,12 @@ import { JoinGroupConversationModalService } from 'src/app/services/join-group-c
 })
 export class JoinGroupConversationModalComponent implements OnInit {
 
-  constructor(private joinGroupConversationModalService: JoinGroupConversationModalService){
+  @ViewChild("conversationLinkInput") conversationLinkInput: ElementRef;
+
+  errorMessage?: string;
+
+  constructor(private joinGroupConversationModalService: JoinGroupConversationModalService,
+    private conversationService: ConversationService){
 
   }
   
@@ -16,6 +24,18 @@ export class JoinGroupConversationModalComponent implements OnInit {
   }
 
   onJoin(): void {
+    const req: JoinGroupConversationRequest = new JoinGroupConversationRequest();
+    req.joinerId = SessionService.getCurrentUser().id;
+    req.conversationLink = this.conversationLinkInput.nativeElement.value;
+    
+    this.conversationService.joinGroupConversation(req).subscribe(
+      (successRes: any) => {
+        this.joinGroupConversationModalService.closeModal();
+      },
+      (errorRes: any) => {
+        this.errorMessage = errorRes.error.message;
+      }
+    )
   }
 
   onClose(): void {
