@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { API_BASE_URL } from "../config";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { WebSocketService } from "../services/web-socket.service";
 import { Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
@@ -44,6 +44,40 @@ export class ContactRequestService {
                 throw error;
             }),
             map((body: any) => {
+                // this.notifyObservers(this.contactRequestsSubject, this.contactRequests);
+            })
+        );
+    }
+
+    acceptRequest(contact: Contact): Observable<any> {
+        return this.http.put<any>(`${this.CONTACT_REQUESTS_BASE_URL}`, contact).pipe(
+            catchError(error => {
+                this.handleError(error);
+                throw error;
+            }),
+            map((body: any) => {
+                this.contactRequests = this.contactRequests.filter(currentContact => currentContact.id !== contact.id);
+                this.notifyObservers(this.contactRequestsSubject, this.contactRequests);
+            })
+        );
+    }
+
+    declineRequest(contact: Contact): Observable<any> {
+        const OPTIONS = {
+            headers: new HttpHeaders({
+              'Content-Type': 'application/json',
+            }),
+            body: contact
+        };
+
+        return this.http.delete<any>(`${this.CONTACT_REQUESTS_BASE_URL}`, OPTIONS).pipe(
+            catchError(error => {
+                this.handleError(error);
+                throw error;
+            }),
+            map((body: any) => {
+                this.contactRequests = this.contactRequests.filter(currentContact => currentContact.id !== contact.id);
+                this.notifyObservers(this.contactRequestsSubject, this.contactRequests);
             })
         );
     }
