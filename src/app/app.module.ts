@@ -14,7 +14,8 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { ScrollToBottomDirective } from './directives/scroll-to-bottom.directive';
 import { ContactFeaturesComponent } from './components/contact-features/contact-features.component';
 import { ContactsComponent } from './components/contacts/contacts.component';
-import { ContactRequestsComponent } from './components/contact-requests/contact-requests.component';
+import { IncomingContactRequestComponent } from './components/incoming-contact-requests/incoming-contact-requests.component';
+import { OutgoingContactRequestComponent } from './components/outgoing-contact-requests/outgoing-contact-requests.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
@@ -44,7 +45,8 @@ import { HttpClientModule } from '@angular/common/http';
     ScrollToBottomDirective,
     ContactFeaturesComponent,
     ContactsComponent,
-    ContactRequestsComponent,
+    IncomingContactRequestComponent,
+    OutgoingContactRequestComponent,
     FooterComponent,
     AuthComponent,
     SignInComponent,

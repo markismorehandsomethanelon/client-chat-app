@@ -5,6 +5,7 @@ import { Contact } from 'src/app/models/contact';
 import { Subscription } from 'rxjs';
 import { SessionService } from 'src/app/services/session.service';
 import { ContactService } from 'src/app/new-services/contact.service';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-contacts',
@@ -13,10 +14,12 @@ import { ContactService } from 'src/app/new-services/contact.service';
 })
 export class ContactsComponent implements OnInit {
 
-  contacts: Contact[] = [];
+  private contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
 
-  conversationsSubscription: Subscription;
+  private conversationsSubscription: Subscription;
+
+  private DELETE_CONTACT_CONTENT: string = "Are you sure to delete this contact?";
 
   constructor(private confirmModalService: ConfirmModalService,
     private contactService: ContactService) { }
@@ -26,6 +29,7 @@ export class ContactsComponent implements OnInit {
     this.contactService.onContactsChanged().subscribe(
       (contacts: Contact[]) => {
         this.contacts = contacts;
+        this.filteredContacts = contacts;
       }
     );
 
@@ -36,21 +40,29 @@ export class ContactsComponent implements OnInit {
 
   }
 
-  openConfirmModal(): void {
-    // const modalRef = this.confirmModalService.openModal(ConfirmModalComponent);
-  }
-
   getContactAvatar(contact: Contact): string {
-    if (SessionService.getCurrentUser().id != contact.user1.id){
-      return contact.user1.avatar;
-    }
-    return contact.user2.avatar;
+    const CURRENT_USER: User = SessionService.getCurrentUser();
+    return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.avatar : contact.sender.avatar;
   }
 
   getContactName(contact: Contact): string {
-    if (SessionService.getCurrentUser().id != contact.user1.id){
-      return contact.user1.name;
-    }
-    return contact.user2.name;
+    const CURRENT_USER: User = SessionService.getCurrentUser();
+    return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.name : contact.sender.name;
+  }
+
+  onDeleted(contact: Contact): void {
+    this.confirmModalService.openModal(ConfirmModalComponent, this.DELETE_CONTACT_CONTENT, 
+      () => this.onDeletedCallback(contact));
+  }
+
+  onDeletedCallback(contact: Contact): void {
+    this.contactService.deleteContact(contact).subscribe(
+      () => {
+        this.confirmModalService.closeModal();
+      },
+      (errorRes) => {
+        console.log(errorRes.error.message);
+      }
+    );
   }
 }

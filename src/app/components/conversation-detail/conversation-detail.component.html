@@ -6,7 +6,9 @@
                 <img (click)="openUpdateGroupConversationModal()" [src]="getConversationAvatar()" class="rounded-circle"  alt="ChatAvatar" width="50" height="50"/>
                 <div class="ms-3 min-w-0">
                     <div class="h6 text-truncate font-weight-bold m-0">{{getConversationName()}}</div>
-                    <a>{{conversation.members.length}} members</a>
+                    <ng-container *ngIf="isGroupConversation()">
+                        <a>{{conversation.members.length}} members</a>
+                    </ng-container>
                 </div>
             </div>
             <div class="d-flex align-items-center">
@@ -21,14 +23,16 @@
                     </div>
                     <input type="text" class="form-control" placeholder="Search messages...">
                 </div>
-                <i id="conversationDetailEllipsisDropdown" class="fas fa-ellipsis-vertical p-3" data-bs-toggle="dropdown" aria-expanded="false"></i>
-                <div class="dropdown">
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="conversationDetailEllipsisDropdown">
-                        <button (click)="copyLink()" class="dropdown-item">Copy link</button>
-                        <li><hr class="dropdown-divider"></li>
-                        <button (click)="leaveGroup()" class="dropdown-item text-danger">Leave group</button>
+                <ng-container *ngIf="!isGroupConversation()">
+                    <i id="conversationDetailEllipsisDropdown" class="fas fa-ellipsis-vertical p-3" data-bs-toggle="dropdown" aria-expanded="false"></i>
+                    <div class="dropdown">
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="conversationDetailEllipsisDropdown">
+                            <button (click)="onCopyLink()" class="dropdown-item">Copy link</button>
+                            <li><hr class="dropdown-divider"></li>
+                            <button (click)="onLeaveGroup()" class="dropdown-item text-danger">Leave group</button>
+                        </div>
                     </div>
-                </div>
+                </ng-container>
             </div>
         </div>
         <!-- Chat window -->
@@ -37,7 +41,7 @@
                 <ng-container *ngIf="isSentMessage(message)">
                     <app-sent-message [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
                 </ng-container>
-                <ng-container *ngIf="isReceivedMessage(message)">
+                <ng-container *ngIf="!isSentMessage(message)">
                     <app-received-message [message]="message" [messageType]="getMessageType(message)"></app-received-message>
                 </ng-container>
             </ng-container>

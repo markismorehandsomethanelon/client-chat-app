@@ -1,5 +1,5 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Conversation } from 'src/app/models/conversation';
@@ -8,13 +8,12 @@ import { User } from 'src/app/models/user';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
 import { GroupConversationModalComponent } from '../group-conversation-modal/group-conversation-modal.component';
 import { ConversationService } from 'src/app/new-services/new-conversation.service';
-import { WebSocketService } from 'src/app/services/web-socket.service';
 import { SessionService } from 'src/app/services/session.service';
 import { TextMessage } from 'src/app/models/text-message';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
-import { GroupConversation } from 'src/app/models/group-conversation';
 import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { LeaveGroupConversationRequest } from 'src/app/requests/leave-group-conversation.request';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -25,35 +24,27 @@ export class ConversationDetailComponent implements OnInit {
 
   conversation: Conversation;
 
-  conversationSubscription: Subscription;
+  private conversationSubscription: Subscription;
+
+  private LEAVE_GROUP_CONTENT: string = "Are you sure to leave this group";
 
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
-    private webSocketService: WebSocketService,
-    private confirmModalService: ConfirmModalService) {}
+    private confirmModalService: ConfirmModalService,
+    private router: Router) {}
 
   ngOnInit(): void {
-    this.route.paramMap.pipe(
-      switchMap((params: ParamMap) => 
-        this.conversationService.findById(+params.get('id'))
-      )
-    ).subscribe();
-
     this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
       (conversation: Conversation) => {
         this.conversation = conversation;
       }
     );
 
-    // this.subscription = this.conversationService.onMessageChanged().subscribe(
-    //   (res: any) => {
-    //     if (!res.success){
-    //       return;
-    //     }
-    //     this.conversation.messages.push(res.data);
-    //     this.conversation.lastestMessage = res.data ;
-    //     this.conversationService.updatedConversationSubject.next({success: true, data: this.conversation});
-    // });
+    this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => 
+        this.conversationService.findById(+params.get('id'))
+      )
+    ).subscribe();
   }
 
   ngOnDestroy() {
@@ -62,17 +53,18 @@ export class ConversationDetailComponent implements OnInit {
 
 
   isSentMessage(message: Message): boolean {
-    const CURRENT_USER: User = JSON.parse(sessionStorage.getItem('currentUser'));
+    const CURRENT_USER: User = SessionService.getCurrentUser();;
     return message.sender.id === CURRENT_USER.id;
   }
 
-  isReceivedMessage(message: Message): boolean {
-    const CURRENT_USER: User = JSON.parse(sessionStorage.getItem('currentUser'));
-    return message.sender.id !== CURRENT_USER.id;
+  isGroupConversation(): boolean {
+    return this.conversation.hasOwnProperty('avatar');
   }
 
   openUpdateGroupConversationModal(): void {
-    this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation);
+    if (this.isGroupConversation()) {
+      this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation);
+    }
   }
 
   getConversationAvatar(): string {
@@ -89,7 +81,7 @@ export class ConversationDetailComponent implements OnInit {
       return (this.conversation as any).name;
     }
 
-    const CURRENT_USER = JSON.parse(sessionStorage.getItem('currentUser'));
+    const CURRENT_USER = SessionService.getCurrentUser();
     const otherUser = this.conversation.members.find(member => member.id !== CURRENT_USER.id);
     return otherUser.name;
   }
@@ -102,32 +94,44 @@ export class ConversationDetailComponent implements OnInit {
     return multimediaMessage.type;
   }
 
-  // onInput(event: KeyboardEvent, inputElement: HTMLInputElement): void {
-    
-  //   const key: string = event.key;
-
-  //   console.log(key);
-
-  //   if (key === 'Enter') {
-  //   }
-  // }
-
   sendTextMessage(inputElement: HTMLInputElement): void {
     const message: TextMessage = new TextMessage();
     const sender: User = new User();
+
     sender.id = SessionService.getCurrentUser().id;
+
     message.sender = sender;
     message.sentAt = new Date().toISOString();
     message.content = inputElement.value;
+
     inputElement.value = '';
+
     this.conversationService.sendMessageToChannel(this.conversation, message);
   }
 
-  copyLink(): void {
+  onCopyLink(): void {
     navigator.clipboard.writeText(`tchat.com/${this.conversation.id}`);
   }
 
-  leaveGroup(): void {
-    this.confirmModalService.openModal(ConfirmModalComponent, "LEAVE_GROUP", this.conversation);
+  onLeaveGroup(): void {
+    this.confirmModalService.openModal(ConfirmModalComponent, this.LEAVE_GROUP_CONTENT, this.onLeaveGroupCallBack.bind(this));
+  }
+
+  onLeaveGroupCallBack(): void {
+    const leaveGroupConversationRequest: LeaveGroupConversationRequest = new LeaveGroupConversationRequest();
+    
+    console.log(this);
+
+    leaveGroupConversationRequest.conversationId = this.conversation.id;
+    leaveGroupConversationRequest.leaverId = SessionService.getCurrentUser().id;
+
+    this.conversationService.leaveGroupConversation(leaveGroupConversationRequest).subscribe(
+      () => {
+        this.confirmModalService.closeModal();
+        this.router.navigate(['/conversations']);
+      },
+      (errorRes: any) => {
+        console.log(errorRes);
+      });
   }
 }

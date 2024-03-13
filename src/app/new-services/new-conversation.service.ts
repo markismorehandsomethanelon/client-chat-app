@@ -11,6 +11,7 @@ import { LeaveGroupConversationRequest } from '../requests/leave-group-conversat
 import { WebSocketService } from '../services/web-socket.service';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { HEADER } from '../config';
 
 
 @Injectable({
@@ -128,9 +129,7 @@ export class ConversationService {
     leaveGroupConversation(leaveGroupConversationRequest: LeaveGroupConversationRequest): Observable<any> {
         const URL = `${this.GROUP_CONVERSATION_BASE_URL}/members`;
         const OPTIONS = {
-            headers: new HttpHeaders({
-              'Content-Type': 'application/json',
-            }),
+            headers: HEADER,
             body: leaveGroupConversationRequest
         };
         return this.http.delete<any>(URL, OPTIONS).pipe(

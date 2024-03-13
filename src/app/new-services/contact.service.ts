@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL, HEADER } from "../config";
 import { HttpClient } from "@angular/common/http";
 import { WebSocketService } from "../services/web-socket.service";
 import { Router } from "@angular/router";
@@ -34,6 +34,26 @@ export class ContactService {
             }),
             map((body: any) => {
                 this.contacts = body.data;
+                this.notifyObservers(this.contactsSubject, this.contacts);
+            })
+        );
+    }
+
+    deleteContact(contact: Contact): Observable<any> {
+        const OPTIONS = {
+            headers: HEADER,
+            body: contact
+        };
+        
+        console.log(this);
+
+        return this.http.delete<any>(`${this.CONTACTS_BASE_URL}`, OPTIONS).pipe(
+            catchError(error => {
+                this.handleError(error);
+                throw error;
+            }),
+            map((body: any) => {
+                this.contacts = this.contacts.filter(currentContact => contact.id !== currentContact.id);
                 this.notifyObservers(this.contactsSubject, this.contacts);
             })
         );

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Contact } from 'src/app/models/contact';
 import { User } from 'src/app/models/user';
-import { ContactRequestService } from 'src/app/new-services/contact-request.service';
-import { ContactService } from 'src/app/new-services/contact.service';
 import { AddContactModalService } from 'src/app/services/add-contact-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 import { UserService } from 'src/app/services/user.service';
+import { OutgoingContactRequestService } from 'src/app/new-services/outcoming-contact-request.service';
 
 @Component({
   selector: 'app-add-contact-modal',
@@ -23,7 +22,7 @@ export class AddContactModalComponent implements OnInit {
   errorMessage?: string;
 
   constructor(private addContactModalService: AddContactModalService,
-    private contactRequestService: ContactRequestService,
+    private outgoingContactRequestService: OutgoingContactRequestService,
     private userService: UserService
     ){
 
@@ -39,16 +38,16 @@ export class AddContactModalComponent implements OnInit {
     }
 
     const contact: Contact = new Contact();
-    const user1: User = new User();
-    const user2: User = new User();
+    const sender: User = new User();
+    const receiver: User = new User();
 
-    user1.id = SessionService.getCurrentUser().id;
-    user2.id = this.foundUser.id;
+    sender.id = SessionService.getCurrentUser().id;
+    receiver.id = this.foundUser.id;
 
-    contact.user1 = user1;
-    contact.user2 = user2;
+    contact.sender = sender;
+    contact.receiver = receiver;
 
-    this.contactRequestService.sendRequest(contact).subscribe(
+    this.outgoingContactRequestService.sendOutgoingContactRequests(contact).subscribe(
       (successRes) => {
         this.onClose();
       },

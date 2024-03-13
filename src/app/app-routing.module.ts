@@ -10,7 +10,8 @@ import { SignInComponent } from './components/sign-in/sign-in.component';
 import { SignUpComponent } from './components/sign-up/sign-up.component';
 import { MainComponent } from './components/main/main.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
-import { ContactRequestsComponent } from './components/contact-requests/contact-requests.component';
+import { IncomingContactRequestComponent } from './components/incoming-contact-requests/incoming-contact-requests.component';
+import { OutgoingContactRequestComponent } from './components/outgoing-contact-requests/outgoing-contact-requests.component';
 
 const routes: Routes = [
   {
@@ -55,8 +56,12 @@ const routes: Routes = [
             component: ContactsComponent
           },
           {
-            path: 'contactRequests',
-            component: ContactRequestsComponent
+            path: 'incomingContactRequests',
+            component: IncomingContactRequestComponent
+          },
+          {
+            path: 'outgoingContactRequests',
+            component: OutgoingContactRequestComponent
           }
         ]
       }
