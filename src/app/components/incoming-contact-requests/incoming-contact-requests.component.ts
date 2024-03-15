@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Contact } from 'src/app/models/contact';
-import { IncomingContactRequestService } from 'src/app/new-services/incoming-contact-request.service';
+import { IncomingContactRequestService } from 'src/app/services/incoming-contact-request.service';
 import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Conversation } from 'src/app/models/conversation';
-import { User } from 'src/app/models/user';
-import { ConversationService } from 'src/app/new-services/new-conversation.service';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { SessionService } from 'src/app/services/session.service';
 import { WebSocketService } from 'src/app/services/web-socket.service';
 

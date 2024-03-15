@@ -4,7 +4,7 @@ import { User } from 'src/app/models/user';
 import { AddContactModalService } from 'src/app/services/add-contact-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 import { UserService } from 'src/app/services/user.service';
-import { OutgoingContactRequestService } from 'src/app/new-services/outcoming-contact-request.service';
+import { OutgoingContactRequestService } from 'src/app/services/outcoming-contact-request.service';
 
 @Component({
   selector: 'app-add-contact-modal',

@@ -4,7 +4,7 @@ import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component'
 import { Contact } from 'src/app/models/contact';
 import { Subscription } from 'rxjs';
 import { SessionService } from 'src/app/services/session.service';
-import { ContactService } from 'src/app/new-services/contact.service';
+import { ContactService } from 'src/app/services/contact.service';
 import { User } from 'src/app/models/user';
 
 @Component({

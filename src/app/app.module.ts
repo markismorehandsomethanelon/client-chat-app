@@ -31,6 +31,7 @@ import { JoinGroupConversationModalComponent } from './components/join-group-con
 import { AddContactModalComponent } from './components/add-contact-modal/add-contact-modal.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { ToastsComponent } from './components/toasts/toasts.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { HttpClientModule } from '@angular/common/http';
     GroupConversationModalComponent,
     ConfirmModalComponent,
     JoinGroupConversationModalComponent,
-    AddContactModalComponent
+    AddContactModalComponent,
+    ToastsComponent
   ],
   imports: [
     BrowserModule,

@@ -49,9 +49,14 @@
         <!-- Input area -->
         <div class="d-flex align-items-center flex-grow-0">
             <div class="d-flex align-items-center">
-                <i class="fas fa-smile-o me-3"  aria-hidden="true"></i>
-                <i class="fas fa-paperclip me-3" aria-hidden="true"></i>
-                <i class="fas fa-microphone me-3" aria-hidden="true"></i>
+                <!-- <i class="fas fa-smile-o p-3"  aria-hidden="true"></i> -->
+                <button (click)="onChooseFile()" type="button" class="btn">
+                    <input #fileInput type="file" class="d-none" (change)="onFileSelected($event)">
+                    <i class="fas fa-paperclip py-3 px-1" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn">
+                    <i class="fas fa-microphone py-3 px-1" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="flex-grow-1">
                 <input #textInput (keyup.enter)="sendTextMessage(textInput)" class="py-3 form-control " type="text"

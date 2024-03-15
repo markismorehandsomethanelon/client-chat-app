@@ -6,4 +6,11 @@ export class Conversation {
     lastestMessage: Message;
     messages: Message[];
     members: User[];
+    instanceOf: string;
+
+    constructor(){
+        this.lastestMessage = null;
+        this.messages = [];
+        this.members = [];
+    }
 }

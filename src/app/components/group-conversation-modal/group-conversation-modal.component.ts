@@ -1,8 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { GroupConversation } from 'src/app/models/group-conversation';
 import { User } from 'src/app/models/user';
-import { ConversationService } from 'src/app/new-services/new-conversation.service';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
   selector: 'app-group-conversation-modal',
@@ -32,14 +33,21 @@ export class GroupConversationModalComponent implements OnInit {
       this.onUpdate();
       return;
     }
-    const CURRENT_USER: User = JSON.parse(sessionStorage.getItem('currentUser'));
-    this.groupConversation.ownerId = CURRENT_USER.id;
-    this.onCreate(CURRENT_USER);
+    this.onCreate();
   }
 
-  onCreate(CURRENT_USER: User): void {
-    this.conversationService.createGroupConversation(this.groupConversation).subscribe(
-      (groupConversation: GroupConversation) => {
+  onCreate(): void {
+
+    const CURRENT_USER: User = SessionService.getCurrentUser();
+
+    const member: User = new User();
+    member.id = CURRENT_USER.id;
+
+    this.groupConversation.ownerId = CURRENT_USER.id;
+    this.groupConversation.members = [member];
+
+    this.conversationService.createConversation(this.groupConversation).subscribe(
+      (successRes: any) => {
         this.groupConversationModalService.closeModal();
       },
       (errorResponse) => {
@@ -51,7 +59,7 @@ export class GroupConversationModalComponent implements OnInit {
 
   onUpdate(): void {
     this.conversationService.updateConversation(this.groupConversation).subscribe(
-      (groupConversation: GroupConversation) => {
+      (successRes: any) => {
         this.groupConversationModalService.closeModal();
       },
       (errorResponse) => {

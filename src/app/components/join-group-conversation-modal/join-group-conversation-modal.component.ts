@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { JoinGroupConversationRequest } from 'src/app/requests/join-group-conversation.request';
-import { ConversationService } from 'src/app/new-services/new-conversation.service';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { JoinGroupConversationModalService } from 'src/app/services/join-group-conversation-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 

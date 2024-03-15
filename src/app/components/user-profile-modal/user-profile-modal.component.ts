@@ -1,7 +1,6 @@
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { UserProfileModalService } from 'src/app/services/user-profile-modal.service';
-import { Util } from 'src/app/utils/util';
 
 declare const bootstrap: any;
 

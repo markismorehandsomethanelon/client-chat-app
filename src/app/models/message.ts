@@ -5,4 +5,5 @@ export class Message {
     sentAt: string;
     sender: User;
     conversationId: number;
+    instanceOf: string;
 }

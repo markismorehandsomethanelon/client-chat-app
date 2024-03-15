@@ -7,7 +7,7 @@ import { Message } from 'src/app/models/message';
 import { User } from 'src/app/models/user';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
 import { GroupConversationModalComponent } from '../group-conversation-modal/group-conversation-modal.component';
-import { ConversationService } from 'src/app/new-services/new-conversation.service';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { SessionService } from 'src/app/services/session.service';
 import { TextMessage } from 'src/app/models/text-message';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
@@ -23,6 +23,8 @@ import { LeaveGroupConversationRequest } from 'src/app/requests/leave-group-conv
 export class ConversationDetailComponent implements OnInit {
 
   conversation: Conversation;
+
+  @ViewChild('fileInput') fileInput: any;
 
   private conversationSubscription: Subscription;
 
@@ -115,6 +117,59 @@ export class ConversationDetailComponent implements OnInit {
 
   onLeaveGroup(): void {
     this.confirmModalService.openModal(ConfirmModalComponent, this.LEAVE_GROUP_CONTENT, this.onLeaveGroupCallBack.bind(this));
+  }
+
+  onChooseFile(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  private getFileType(file: File): string {
+    const fileType = file.type;
+    const typeMap: { [key: string]: string[] } = {
+      'audio': ['audio/mpeg', 'audio/mp3'],
+      'video': ['video/mp4', 'video/mpeg'],
+      'image': ['image/jpeg', 'image/png', 'image/gif'],
+      'document': [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+      ],
+      'sheet': [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ],
+      'presentation': [
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      ],
+      'other': ['application/octet-stream']
+    };
+  
+    for (const type in typeMap) {
+      if (typeMap[type].includes(fileType)) {
+        return type;
+      }
+    }
+  
+    return 'other';
+  }
+
+  onFileSelected(event: any) {
+    const selectedFile = event.target.files[0];
+    
+    const fileType: string = this.getFileType(selectedFile).toUpperCase();
+
+    const message: MultimediaMessage = new MultimediaMessage();
+    const sender: User = new User();
+
+    sender.id = SessionService.getCurrentUser().id;
+
+    message.conversationId = this.conversation.id;
+    message.sender = sender;
+    message.sentAt = new Date().toISOString();
+    message.type = fileType;
+
+    console.log(message);
+
+    this.conversationService.sendMessageToChannel(this.conversation, message);
   }
 
   onLeaveGroupCallBack(): void {
