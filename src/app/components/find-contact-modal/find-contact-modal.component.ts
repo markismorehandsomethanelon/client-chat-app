@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Contact } from 'src/app/models/contact';
 import { User } from 'src/app/models/user';
-import { AddContactModalService } from 'src/app/services/add-contact-modal.service';
+import { FindContactModalService } from 'src/app/services/find-contact-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 import { UserService } from 'src/app/services/user.service';
 import { OutgoingContactRequestService } from 'src/app/services/outcoming-contact-request.service';
+import { ConversationService } from 'src/app/services/conversation.service';
+import { IndividualConversation } from 'src/app/models/individual-conversation';
 
 @Component({
-  selector: 'app-add-contact-modal',
-  templateUrl: './add-contact-modal.component.html',
-  styleUrls: ['./add-contact-modal.component.css']
+  selector: 'app-find-contact-modal',
+  templateUrl: './find-contact-modal.component.html',
+  styleUrls: ['./find-contact-modal.component.css']
 })
-export class AddContactModalComponent implements OnInit {
+export class FindContactModelComponent implements OnInit {
 
   ceditable: boolean;
 
@@ -21,9 +23,10 @@ export class AddContactModalComponent implements OnInit {
   
   errorMessage?: string;
 
-  constructor(private addContactModalService: AddContactModalService,
+  constructor(private findContactModalService: FindContactModalService,
     private outgoingContactRequestService: OutgoingContactRequestService,
-    private userService: UserService
+    private userService: UserService,
+    private conversationService: ConversationService
     ){
 
   }
@@ -81,8 +84,32 @@ export class AddContactModalComponent implements OnInit {
 
   }
 
+  onStart(): void {
+
+    if (!this.foundUser) {
+      return;
+    }
+
+    const individualConversation: IndividualConversation  = new IndividualConversation();
+    const member1: User = new User();
+    const member2: User = new User();
+
+    member1.id = SessionService.getCurrentUser().id;
+    member2.id = this.foundUser.id;
+
+    individualConversation.members = [member1, member2];
+    this.conversationService.createConversation(individualConversation).subscribe(
+      (successRes: any) => {
+        this.onClose();
+      },
+      (errorRes: any) => {
+        this.errorMessage = errorRes.error.message;
+      }
+    );
+  }
+
   onClose(): void {
-    this.addContactModalService.closeModal();
+    this.findContactModalService.closeModal();
   }
 
 }

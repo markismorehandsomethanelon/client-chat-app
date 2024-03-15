@@ -28,7 +28,7 @@ import { GroupConversationModalComponent } from './components/group-conversation
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmModalComponent } from './components/confirm-modal/confirm-modal.component';
 import { JoinGroupConversationModalComponent } from './components/join-group-conversation-modal/join-group-conversation-modal.component';
-import { AddContactModalComponent } from './components/add-contact-modal/add-contact-modal.component';
+import { FindContactModelComponent } from './components/find-contact-modal/find-contact-modal.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ToastsComponent } from './components/toasts/toasts.component';
@@ -59,7 +59,7 @@ import { ToastsComponent } from './components/toasts/toasts.component';
     GroupConversationModalComponent,
     ConfirmModalComponent,
     JoinGroupConversationModalComponent,
-    AddContactModalComponent,
+    FindContactModelComponent,
     ToastsComponent
   ],
   imports: [

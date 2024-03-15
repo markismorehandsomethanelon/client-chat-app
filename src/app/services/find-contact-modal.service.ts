@@ -5,7 +5,7 @@ import { Subject } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class AddContactModalService {
+export class FindContactModalService {
     private modalRef: NgbModalRef;
 
     private closeModalSubject = new Subject<void>();

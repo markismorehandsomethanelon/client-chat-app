@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AddContactModalService } from 'src/app/services/add-contact-modal.service';
-import { AddContactModalComponent } from '../add-contact-modal/add-contact-modal.component';
+import { FindContactModalService } from 'src/app/services/find-contact-modal.service';
+import { FindContactModelComponent } from '../find-contact-modal/find-contact-modal.component';
 
 @Component({
   selector: 'app-contact-features',
@@ -9,12 +9,12 @@ import { AddContactModalComponent } from '../add-contact-modal/add-contact-modal
 })
 export class ContactFeaturesComponent implements OnInit {
 
-  constructor(private addContactModalService: AddContactModalService) { }
+  constructor(private addContactModalService: FindContactModalService) { }
 
   ngOnInit(): void {
   }
 
-  openAddContactModal(): void {
-    this.addContactModalService.openModal(AddContactModalComponent);
+  openFindContactModal(): void {
+    this.addContactModalService.openModal(FindContactModelComponent);
   }
 }
