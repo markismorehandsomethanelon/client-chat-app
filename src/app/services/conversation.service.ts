@@ -118,7 +118,6 @@ export class ConversationService {
              }),
              map((body: any) => {
                  this.conversations = body.data;
-                 console.log(body);
                  this.subscribeConversationChannels(this.conversations);
                  this.notifyObservers(this.conversationsSubject, this.conversations);
              })
@@ -148,13 +147,14 @@ export class ConversationService {
      // Body.data is conversation object
      findById(id: number): Observable<any> {
          const URL = `${this.CONVERSATIONS_BASE_URL}/${id}`;
-         return this.http.get(URL).pipe(
+         return this.http.get<any>(URL).pipe(
              catchError(error => {
                  this.handleError(error);
                  throw error;
              }),
              map((body: any) => {
                  this.currentConversation = body.data;
+                 console.log(this.currentConversation);
                  this.notifyObservers(this.currentConversationSubject, this.currentConversation);
              })
          );

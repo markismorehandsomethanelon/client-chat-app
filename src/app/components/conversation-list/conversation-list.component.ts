@@ -23,9 +23,7 @@ export class ConversationListComponent implements OnInit {
   selectedConversationId!: number;
 
   constructor(private conversationService: ConversationService, 
-    private router: Router, 
-    private route: ActivatedRoute,
-    private webSocketService: WebSocketService) {
+    private router: Router){
   }
 
   ngOnInit(): void {

@@ -18,6 +18,7 @@
                 <p *ngIf="messageType == 'TEXT'">
                     {{message.content}}
                 </p>
+                <img *ngIf="messageType == 'IMAGE'" src="{{message.data}}" alt="image"/>
 
                 <!-- <th:block th:switch="${message.class.name}">
                     <th:block th:case="'chatapp.entity.TextMessageEntity'">

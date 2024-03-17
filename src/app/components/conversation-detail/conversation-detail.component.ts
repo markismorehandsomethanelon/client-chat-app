@@ -14,6 +14,7 @@ import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { LeaveGroupConversationRequest } from 'src/app/requests/leave-group-conversation.request';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -60,17 +61,17 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   isGroupConversation(): boolean {
-    return this.conversation.hasOwnProperty('avatar');
+    return this.conversation.instanceOf === "group";
   }
 
   openUpdateGroupConversationModal(): void {
-    if (this.isGroupConversation()) {
+    if (this.conversation.instanceOf === "group") {
       this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation);
     }
   }
 
   getConversationAvatar(): string {
-    if (this.conversation.hasOwnProperty('avatar')) {
+    if (this.conversation.instanceOf === "group") {
       return (this.conversation as any).avatar;
     }
     const CURRENT_USER = SessionService.getCurrentUser();
@@ -79,7 +80,7 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   getConversationName(): string {    
-    if (this.conversation.hasOwnProperty('name')) {
+    if (this.conversation.instanceOf === "group") {
       return (this.conversation as any).name;
     }
 
@@ -89,8 +90,8 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   getMessageType(message: Message): string {
-    if (message.hasOwnProperty('content')){
-      return 'TEXT';
+    if (message.instanceOf === "TEXT"){
+      return message.instanceOf;
     }
     const multimediaMessage: MultimediaMessage = message as MultimediaMessage;
     return multimediaMessage.type;
@@ -152,7 +153,7 @@ export class ConversationDetailComponent implements OnInit {
     return 'other';
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     const selectedFile = event.target.files[0];
     
     const fileType: string = this.getFileType(selectedFile).toUpperCase();
@@ -166,6 +167,7 @@ export class ConversationDetailComponent implements OnInit {
     message.sender = sender;
     message.sentAt = new Date().toISOString();
     message.type = fileType;
+    message.data = await Util.fileToBase64(selectedFile);
 
     console.log(message);
 

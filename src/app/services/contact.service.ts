@@ -1,8 +1,6 @@
 import { Injectable } from "@angular/core";
 import { API_BASE_URL, HEADER } from "../config";
 import { HttpClient } from "@angular/common/http";
-import { WebSocketService } from "./web-socket.service";
-import { Router } from "@angular/router";
 import { Observable, Subject } from "rxjs";
 import { User } from "../models/user";
 import { catchError, map } from 'rxjs/operators';
@@ -22,7 +20,7 @@ export class ContactService {
     private contactsSubject: Subject<Contact[]> = new Subject<Contact[]>();
     
 
-    constructor(private http: HttpClient, private websocketService: WebSocketService, private router: Router) {
+    constructor(private http: HttpClient) {
   
     }
 
