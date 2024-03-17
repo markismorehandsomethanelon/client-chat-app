@@ -15,6 +15,7 @@
                 <p *ngIf="messageType == 'TEXT'">
                     {{message.content}}
                 </p>
+                <img *ngIf="messageType == 'IMAGE'" class="w-100" height="200" src="{{message.data}}" alt="image"/>
                 <!-- <ng-container *ngIf="(message as any)?.content !== undefined">
                     <p>{{ (message as any).content }}</p>
                 </ng-container> -->

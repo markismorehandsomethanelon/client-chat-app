@@ -15,10 +15,16 @@
                 <!-- <ng-container *ngIf="messageType == 'TEXT'">
                     <p>{{ (message as any).content }}</p>
                 </ng-container> -->
-                <p *ngIf="messageType == 'TEXT'">
-                    {{message.content}}
-                </p>
-                <img *ngIf="messageType == 'IMAGE'" src="{{message.data}}" alt="image"/>
+                <ng-container *ngIf="messageType == 'TEXT'">
+                    <p>{{message.content}}</p>
+                </ng-container>
+                <ng-container *ngIf="messageType == 'IMAGE'">
+                    <img  class="rounded w-100 py-2" src="{{message.data}}" alt="image"/>
+                </ng-container>
+                <ng-container *ngIf="messageType == 'VIDEO'">
+                    <video class="rounded py-2" th:src="${message.data}" controls></video>
+                </ng-container>
+                
 
                 <!-- <th:block th:switch="${message.class.name}">
                     <th:block th:case="'chatapp.entity.TextMessageEntity'">

@@ -22,7 +22,7 @@ export class WebSocketService {
   connect(): void {
     this.socket = new SockJS(this.URL);
     this.stompClient = Stomp.over(this.socket);
-    this.stompClient.maxWebSocketFrameSize = 1024*1024*1024;
+    this.stompClient.maxWebSocketFrameSize = 16 * 1024 * 1024 * 1024;
     this.stompSubscriptions = new Map();
 
     this.stompClient.connect({}, frame => {
