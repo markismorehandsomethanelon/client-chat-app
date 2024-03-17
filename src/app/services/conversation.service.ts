@@ -118,6 +118,7 @@ export class ConversationService {
              }),
              map((body: any) => {
                  this.conversations = body.data;
+                 console.log(body);
                  this.subscribeConversationChannels(this.conversations);
                  this.notifyObservers(this.conversationsSubject, this.conversations);
              })

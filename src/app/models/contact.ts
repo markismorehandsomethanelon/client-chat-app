@@ -5,4 +5,5 @@ export class Contact {
     sender: User;
     receiver: User;
     status: string;
+    conversationId: number;
 }

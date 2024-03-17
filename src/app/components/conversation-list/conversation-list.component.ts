@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Conversation } from 'src/app/models/conversation';
+import { GroupConversation } from 'src/app/models/group-conversation';
+import { IndividualConversation } from 'src/app/models/individual-conversation';
 import { ConversationService } from 'src/app/services/conversation.service';
 import { SessionService } from 'src/app/services/session.service';
 import { WebSocketService } from 'src/app/services/web-socket.service';
@@ -31,6 +33,7 @@ export class ConversationListComponent implements OnInit {
       .subscribe((conversations: Conversation[]) => {
           this.conversations = conversations;
           this.filteredConversations = this.conversations;
+          console.log(this.conversations);    
       });
     
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
@@ -40,18 +43,20 @@ export class ConversationListComponent implements OnInit {
     this.conversationsSubscription.unsubscribe();
   }
 
-  getConversationAvatar(conversation: any): string {
-    if (conversation.hasOwnProperty('avatar')) {
-      return conversation.avatar;
+  getConversationAvatar(conversation: Conversation): string {
+
+    if (conversation.instanceOf === "group") {
+      return (conversation as GroupConversation).avatar;
     }
+
     const CURRENT_USER = SessionService.getCurrentUser();
     const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
     return otherUser.avatar;
   }
 
-  getConversationName(conversation: any): string {    
-    if (conversation.hasOwnProperty('name')) {
-      return conversation.name;
+  getConversationName(conversation: Conversation): string {    
+    if (conversation.instanceOf === "group") {
+      return (conversation as GroupConversation).name;
     }
 
     const CURRENT_USER = SessionService.getCurrentUser();
