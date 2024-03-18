@@ -13,6 +13,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ChangePasswordRequest } from 'src/app/requests/change-password.request';
 import { GroupConversation } from 'src/app/models/group-conversation';
 import { ConversationService } from 'src/app/services/conversation.service';
+import { FileDownloadService } from 'src/app/services/file-download.service';
+import { SessionService } from 'src/app/services/session.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-conversations',
@@ -29,14 +32,11 @@ export class ConversationsComponent implements OnInit {
       private groupConversationModalService: GroupConversationModalService,
       private userService: UserService,
       private authService: AuthService,
-      private conversationService: ConversationService
+      private fileDownloadService: FileDownloadService
     ) {}
   
   ngOnInit(): void {
-    const currentUserString = sessionStorage.getItem('currentUser');
-    if (currentUserString) {
-      this.currentUser = JSON.parse(currentUserString);
-    }
+    this.currentUser = SessionService.getCurrentUser();
   }
 
   openUserProfileModal(): void {
@@ -75,5 +75,9 @@ export class ConversationsComponent implements OnInit {
 
   openCreateGroupConversation(): void {
     this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
+  }
+
+  getUserAvatar(): Observable<Blob> {
+    return this.fileDownloadService.getFile(this.currentUser.avatarUrl);
   }
 }
