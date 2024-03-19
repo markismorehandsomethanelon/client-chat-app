@@ -43,13 +43,14 @@ export class ConversationListComponent implements OnInit {
 
   getConversationAvatar(conversation: Conversation): string {
 
-    if (conversation.instanceOf === "group") {
-      return (conversation as GroupConversation).avatar;
-    }
+    // if (conversation.instanceOf === "group") {
+    //   return (conversation as GroupConversation).avatar;
+    // }
 
-    const CURRENT_USER = SessionService.getCurrentUser();
-    const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
-    return otherUser.avatar;
+    // const CURRENT_USER = SessionService.getCurrentUser();
+    // const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
+    // return otherUser.avatar;
+    return "";
   }
 
   getConversationName(conversation: Conversation): string {    

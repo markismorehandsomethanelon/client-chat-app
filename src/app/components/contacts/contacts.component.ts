@@ -41,13 +41,15 @@ export class ContactsComponent implements OnInit {
   }
 
   getContactAvatar(contact: Contact): string {
-    const CURRENT_USER: User = SessionService.getCurrentUser();
-    return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.avatar : contact.sender.avatar;
+    // const CURRENT_USER: User = SessionService.getCurrentUser();
+    // return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.avatar : contact.sender.avatar;
+    return "";
   }
 
   getContactName(contact: Contact): string {
-    const CURRENT_USER: User = SessionService.getCurrentUser();
-    return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.name : contact.sender.name;
+    // const CURRENT_USER: User = SessionService.getCurrentUser();
+    // return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.name : contact.sender.name;
+    return "";
   }
 
   onDeleted(contact: Contact): void {

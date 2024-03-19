@@ -47,14 +47,14 @@ export class UserProfileModalComponent implements OnInit {
   }
 
   changeFile(event: any): void {
-    const file: File = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.user.avatar = e.target.result.toString();
-      };
-      reader.readAsDataURL(file);
-    }
+    // const file: File = event.target.files[0];
+    // if (file) {
+    //   const reader = new FileReader();
+    //   reader.onload = (e) => {
+    //     this.user.avatar = e.target.result.toString();
+    //   };
+    //   reader.readAsDataURL(file);
+    // }
   }
 
   chooseFile(): void {

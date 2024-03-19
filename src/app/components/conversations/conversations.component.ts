@@ -16,6 +16,7 @@ import { ConversationService } from 'src/app/services/conversation.service';
 import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
 import { Observable } from 'rxjs';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-conversations',
@@ -25,6 +26,7 @@ import { Observable } from 'rxjs';
 export class ConversationsComponent implements OnInit {
 
   currentUser: User;
+  avatar?: any;
 
   constructor(private userProfileModalService: UserProfileModalService,
       private changePasswordModalService: ChangePasswordModalService,
@@ -37,10 +39,21 @@ export class ConversationsComponent implements OnInit {
   
   ngOnInit(): void {
     this.currentUser = SessionService.getCurrentUser();
+
+    this.fileDownloadService.getFile(this.currentUser.avatarUrl).subscribe(
+      (successRes: any) => {
+        this.avatar = Util.getBase64FromBinary(successRes.data.data, successRes.data.contentType);
+      },
+      (errorRes: any) => {
+
+      }
+    );
+    
   }
 
   openUserProfileModal(): void {
     this.userProfileModalService.openModal(UserProfileModalComponent, true, this.currentUser);
+    this.getUserAvatar();
     this.userProfileModalService.saveModal$.subscribe((user: User) => {
       this.userService.save(user).subscribe(
         responseSuccess => {
@@ -77,7 +90,18 @@ export class ConversationsComponent implements OnInit {
     this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
   }
 
-  getUserAvatar(): Observable<Blob> {
-    return this.fileDownloadService.getFile(this.currentUser.avatarUrl);
+  getUserAvatar(): void {
+    this.fileDownloadService.getFile(this.currentUser.avatarUrl).subscribe(
+      (successRes: any) => {
+        // const blob = new Blob([successRes.data.data], { type: successRes.data.contentType });
+        // console.log(blob);
+        // this.avatar= URL.createObjectURL(blob);
+        this.avatar = Util.getBase64FromBinary(successRes.data.data, successRes.data.contentType);
+        // console.log(successRes.data.data);
+      },
+      (errorRes: any) => {
+
+      }
+    );
   }
 }

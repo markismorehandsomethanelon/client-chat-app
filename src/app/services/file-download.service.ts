@@ -12,8 +12,8 @@ export class FileDownloadService {
 
     constructor(private http: HttpClient) { }
 
-    getFile(fileName: string): Observable<Blob> {
+    getFile(fileName: string): Observable<any> {
         const URL: string = `${this.FILE_BASE_URL}/downloadFile/${fileName}`;
-        return this.http.get(URL, { responseType: 'blob' });
+        return this.http.get<any>(URL);
     }
 }

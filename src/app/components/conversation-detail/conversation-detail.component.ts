@@ -71,12 +71,13 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   getConversationAvatar(): string {
-    if (this.conversation.instanceOf === "group") {
-      return (this.conversation as any).avatar;
-    }
-    const CURRENT_USER = SessionService.getCurrentUser();
-    const otherUser = this.conversation.members.find(member => member.id !== CURRENT_USER.id);
-    return otherUser.avatar;
+    // if (this.conversation.instanceOf === "group") {
+    //   return (this.conversation as any).avatar;
+    // }
+    // const CURRENT_USER = SessionService.getCurrentUser();
+    // const otherUser = this.conversation.members.find(member => member.id !== CURRENT_USER.id);
+    // return otherUser.avatar;
+    return "";
   }
 
   getConversationName(): string {    
