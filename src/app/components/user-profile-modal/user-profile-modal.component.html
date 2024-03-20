@@ -5,7 +5,7 @@
 <div class="modal-body">
     <div class="mb-2 d-flex justify-content-center">
         <input #fileInput (change)="changeFile($event)" type="file" class="d-none" accept="image/*">
-        <img src="" (click)="chooseFile()" class="rounded-circle border border-secondary"
+        <img [src]="avatar" (click)="chooseFile()" class="rounded-circle border border-secondary"
                 width="100" height="100">
     </div>
     <div class="mb-2">

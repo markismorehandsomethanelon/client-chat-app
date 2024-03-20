@@ -31,7 +31,6 @@ export class ConversationListComponent implements OnInit {
       .subscribe((conversations: Conversation[]) => {
           this.conversations = conversations;
           this.filteredConversations = this.conversations;
-          console.log(this.conversations);    
       });
     
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();

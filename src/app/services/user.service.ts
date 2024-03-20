@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Conversation } from '../models/conversation';
 import { User } from '../models/user';
-import { Observable, of } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../config';
 
@@ -10,18 +11,39 @@ import { API_BASE_URL } from '../config';
 })
 export class UserService {
 
-    private userUrl = `${API_BASE_URL}/users`;
+  private userUrl = `${API_BASE_URL}/users`;
 
-    constructor(private http: HttpClient) {
+  private currentUserSubject: Subject<User> = new Subject<User>();
 
-    }
+  private currentUser?: User;
 
-    save(user: User): Observable<any> {
-      return this.http.put(this.userUrl, user);
-    }
+  constructor(private http: HttpClient) {
 
-    findUser(userId: number): Observable<any> {
-      return this.http.get(`${this.userUrl}/${userId}`);
-    }
+  }
+
+  onCurrentUserChanged(): Observable<User> {
+    return this.currentUserSubject.asObservable();
+  }
+
+  save(user: User): Observable<any> {
+    return this.http.put(this.userUrl, user).pipe(
+      catchError(error => {
+        console.log(error);
+          throw error;
+      }),
+      map((body: any) => {
+          this.currentUser = body.data;
+          this.notifyObservers(this.currentUserSubject, this.currentUser);
+      })
+    );
+  }
+
+  findUser(userId: number): Observable<any> {
+    return this.http.get(`${this.userUrl}/${userId}`);
+  }
+
+  private notifyObservers(subject: Subject<any>, data: any): void {
+    subject.next(data);
+  }
   
 }

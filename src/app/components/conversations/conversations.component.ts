@@ -15,7 +15,7 @@ import { GroupConversation } from 'src/app/models/group-conversation';
 import { ConversationService } from 'src/app/services/conversation.service';
 import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Util } from 'src/app/utils/util';
 
 @Component({
@@ -27,6 +27,8 @@ export class ConversationsComponent implements OnInit {
 
   currentUser: User;
   avatar?: any;
+
+  currentUserSupscription: Subscription;
 
   constructor(private userProfileModalService: UserProfileModalService,
       private changePasswordModalService: ChangePasswordModalService,
@@ -45,41 +47,26 @@ export class ConversationsComponent implements OnInit {
         this.avatar = Util.getBase64FromBinary(successRes.data.data, successRes.data.contentType);
       },
       (errorRes: any) => {
-
+        console.log(errorRes.error.message);
       }
     );
+
+    this.currentUserSupscription = this.userService.onCurrentUserChanged().subscribe((user: User) => {
+      this.currentUser = user;
+    });
     
   }
 
+  ngOnDestroy(): void {
+    this.currentUserSupscription.unsubscribe();
+  }
+
   openUserProfileModal(): void {
-    this.userProfileModalService.openModal(UserProfileModalComponent, true, this.currentUser);
-    this.getUserAvatar();
-    this.userProfileModalService.saveModal$.subscribe((user: User) => {
-      this.userService.save(user).subscribe(
-        responseSuccess => {
-          this.currentUser = responseSuccess.data;
-          sessionStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-          this.userProfileModalService.closeModal();
-        },
-        responseError => {
-          this.userProfileModalService.showMessage(responseError.error.message);
-        }
-      );
-    });
+    this.userProfileModalService.openModal(UserProfileModalComponent, true, this.currentUser, this.avatar);
   }
 
   openChangePasswordModal(): void {
     this.changePasswordModalService.openModal(ChangePasswordModalComponent);
-    this.changePasswordModalService.saveModal$.subscribe((request: ChangePasswordRequest) => {
-      this.authService.changePassword(request).subscribe(
-        responseSuccess => {
-          this.changePasswordModalService.closeModal();
-        },
-        responseError => {
-          this.changePasswordModalService.showMessage(responseError.error.message);
-        }
-      );
-    });
   }
 
   openJoinGroupConversationModal(): void {
@@ -88,20 +75,5 @@ export class ConversationsComponent implements OnInit {
 
   openCreateGroupConversation(): void {
     this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
-  }
-
-  getUserAvatar(): void {
-    this.fileDownloadService.getFile(this.currentUser.avatarUrl).subscribe(
-      (successRes: any) => {
-        // const blob = new Blob([successRes.data.data], { type: successRes.data.contentType });
-        // console.log(blob);
-        // this.avatar= URL.createObjectURL(blob);
-        this.avatar = Util.getBase64FromBinary(successRes.data.data, successRes.data.contentType);
-        // console.log(successRes.data.data);
-      },
-      (errorRes: any) => {
-
-      }
-    );
   }
 }

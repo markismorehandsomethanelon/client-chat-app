@@ -1,6 +1,8 @@
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { UserProfileModalService } from 'src/app/services/user-profile-modal.service';
+import { UserService } from 'src/app/services/user.service';
+import { catchError, map } from 'rxjs/operators';
 
 declare const bootstrap: any;
 
@@ -15,11 +17,14 @@ export class UserProfileModalComponent implements OnInit {
 
   user: User = new User();
 
+  avatar?: string;
+
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   errorMessage?: string;
 
-  constructor(private userProfileModalService: UserProfileModalService){
+  constructor(private userProfileModalService: UserProfileModalService,
+    private userService: UserService){
 
   }
   
@@ -27,7 +32,14 @@ export class UserProfileModalComponent implements OnInit {
   }
 
   onSave(): void {
-    this.userProfileModalService.saveModal(this.user);
+    this.userService.save(this.user).subscribe(
+      (successRes: any) => {
+        this.onClose()
+      },
+      (errorRes: any) => {
+        this.errorMessage = errorRes.error.message
+      } 
+    );
   }
 
   onClose(): void {
@@ -42,8 +54,8 @@ export class UserProfileModalComponent implements OnInit {
     this.user = user;
   }
 
-  showMessage(message: string): void {
-    this.errorMessage = message;
+  setAvatar(avatar: string): void {
+    this.avatar = avatar;
   }
 
   changeFile(event: any): void {

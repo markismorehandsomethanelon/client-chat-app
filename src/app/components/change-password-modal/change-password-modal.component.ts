@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ChangePasswordRequest } from 'src/app/requests/change-password.request';
 import { ChangePasswordModalService } from 'src/app/services/change-password-modal.service';
+import { SessionService } from 'src/app/services/session.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-change-password-modal',
@@ -8,37 +10,35 @@ import { ChangePasswordModalService } from 'src/app/services/change-password-mod
   styleUrls: ['./change-password-modal.component.css']
 })
 export class ChangePasswordModalComponent implements OnInit {
-
+  changePasswordRequest?: ChangePasswordRequest = new ChangePasswordRequest();
 
   errorMessage?: string;
 
-  changePasswordRequest?: ChangePasswordRequest = new ChangePasswordRequest();
-
-  constructor(private changePasswordModalService: ChangePasswordModalService){
+  constructor(private changePasswordModalService: ChangePasswordModalService,
+    private authService: AuthService){
 
   }
   
   ngOnInit(): void {
   }
 
-  onSave(confirmPassword: string): void {
+  onSave(): void {
     this.errorMessage = '';
 
-    if (confirmPassword !== this.changePasswordRequest.newPassword){
-      this.errorMessage = "Passwords are not correct"
-      return;
-    }
+    this.changePasswordRequest.userId = SessionService.getCurrentUser().id;
 
-    this.changePasswordRequest.userId = JSON.parse(sessionStorage.getItem('currentUser')).id;
-    console.log(this.changePasswordRequest);
-    this.changePasswordModalService.saveModal(this.changePasswordRequest);
+    this.authService.changePassword(this.changePasswordRequest).subscribe(
+      (successRes: any) => {
+        this.onClose();
+      },
+      (errorRes: any) => {
+        this.errorMessage = errorRes.error.message;
+      }
+    );
+
   }
 
   onClose(): void {
     this.changePasswordModalService.closeModal();
-  }
-
-  showMessage(message: string): void {
-    this.errorMessage = message;
   }
 }

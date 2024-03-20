@@ -9,37 +9,18 @@ import { User } from "../models/user";
 export class UserProfileModalService {
     private modalRef: NgbModalRef;
 
-    private closeModalSubject = new Subject<void>();
-    private saveModelSubject = new Subject<User>();
-
-    closeModal$ = this.closeModalSubject.asObservable();
-    saveModal$ = this.saveModelSubject.asObservable();
-
     constructor(private modalService: NgbModal) {}
 
-    openModal(component: any, editable: boolean, user: User): void {
+    openModal(component: any, editable: boolean, user: User, avatar: string): void {
         this.modalRef = this.modalService.open(component);
         this.modalRef.componentInstance.setEditable(editable);
         this.modalRef.componentInstance.setObject(user);
+        this.modalRef.componentInstance.setAvatar(avatar);
     }
-    
-    saveModal(user: User){
-        if (this.modalRef){
-            this.saveModelSubject.next(user);
-        }
-    }
-    
-
+ 
     closeModal(): void {
         if (this.modalRef){
             this.modalRef.close();
-            this.closeModalSubject.next();
         }
-    }
-
-    showMessage(message: String): void {
-        if (this.modalRef){
-            this.modalRef.componentInstance.showMessage(message);
-        } 
     }
 }

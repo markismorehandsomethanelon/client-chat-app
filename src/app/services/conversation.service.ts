@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { API_BASE_URL, WEB_SOCKET_PUBLIC_ENDPOINT } from '../config';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GroupConversation } from '../models/group-conversation';
