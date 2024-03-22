@@ -3,7 +3,7 @@
         <!-- Header -->
         <div class="d-flex justify-content-between border-bottom px-2 py-1 flex-grow-0">
             <div class="d-flex align-items-center" style="width: 40%">
-                <img (click)="openUpdateGroupConversationModal()" [src]="getConversationAvatar()" class="rounded-circle"  alt="ChatAvatar" width="50" height="50"/>
+                <img (click)="openUpdateGroupConversationModal()" [src]="getAvatar()" class="rounded-circle"  alt="ChatAvatar" width="50" height="50"/>
                 <div class="ms-3 min-w-0">
                     <div class="h6 text-truncate font-weight-bold m-0">{{getConversationName()}}</div>
                     <ng-container *ngIf="isGroupConversation()">

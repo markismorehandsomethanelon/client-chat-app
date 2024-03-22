@@ -1,5 +1,6 @@
 import { HttpHeaders } from "@angular/common/http";
 import {  NgbModalOptions } from "@ng-bootstrap/ng-bootstrap";
+import { RxStompConfig } from '@stomp/rx-stomp';
 
 // endpoint
 const API_VERSION: string = 'v1';
@@ -19,3 +20,5 @@ export const NGB_MODAL_OPTIONS: NgbModalOptions = {
 export const HEADER = new HttpHeaders({
     'Content-Type': 'application/json',
 });
+
+

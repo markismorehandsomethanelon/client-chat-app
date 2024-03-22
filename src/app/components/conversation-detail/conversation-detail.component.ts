@@ -15,6 +15,9 @@ import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { LeaveGroupConversationRequest } from 'src/app/requests/leave-group-conversation.request';
 import { Util } from 'src/app/utils/util';
+import { GroupConversation } from 'src/app/models/group-conversation';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileData } from 'src/app/models/file-data';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -54,6 +57,17 @@ export class ConversationDetailComponent implements OnInit {
     this.conversationSubscription.unsubscribe();
   }
 
+  getAvatar() {
+    if (this.conversation.instanceOf === "group") {
+      const groupConversation: GroupConversation = (this.conversation as GroupConversation);
+      return Util.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
+    }
+    const CURRENT_USER = SessionService.getCurrentUser();
+    const otherUser = this.conversation.members.find(member => member.id !== CURRENT_USER.id);
+
+    return Util.getBase64FromBinary(otherUser.avatarFile.data, otherUser.avatarFile.contentType);
+  }
+
 
   isSentMessage(message: Message): boolean {
     const CURRENT_USER: User = SessionService.getCurrentUser();;
@@ -66,18 +80,8 @@ export class ConversationDetailComponent implements OnInit {
 
   openUpdateGroupConversationModal(): void {
     if (this.conversation.instanceOf === "group") {
-      this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation);
+      this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation, true);
     }
-  }
-
-  getConversationAvatar(): string {
-    // if (this.conversation.instanceOf === "group") {
-    //   return (this.conversation as any).avatar;
-    // }
-    // const CURRENT_USER = SessionService.getCurrentUser();
-    // const otherUser = this.conversation.members.find(member => member.id !== CURRENT_USER.id);
-    // return otherUser.avatar;
-    return "";
   }
 
   getConversationName(): string {    
@@ -110,7 +114,7 @@ export class ConversationDetailComponent implements OnInit {
 
     inputElement.value = '';
 
-    this.conversationService.sendMessageToChannel(this.conversation, message);
+    this.conversationService.sendTextMessageToChannel(this.conversation, message);
   }
 
   onCopyLink(): void {
@@ -132,9 +136,11 @@ export class ConversationDetailComponent implements OnInit {
       'video': ['video/mp4', 'video/mpeg'],
       'image': ['image/jpeg', 'image/png', 'image/gif'],
       'document': [
-        'application/pdf',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/msword',
+      ],
+      'pdf': [
+        'application/pdf',
       ],
       'sheet': [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -154,25 +160,38 @@ export class ConversationDetailComponent implements OnInit {
     return 'other';
   }
 
-  async onFileSelected(event: any) {
-    const selectedFile = event.target.files[0];
+  onFileSelected(event: any) {
+
+    const selectedFile: File = event.target.files[0];
+
+    if (selectedFile) {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const fileType: string = this.getFileType(selectedFile).toUpperCase();
+
+        const message: MultimediaMessage = new MultimediaMessage();
+        const sender: User = new User();
     
-    const fileType: string = this.getFileType(selectedFile).toUpperCase();
+        sender.id = SessionService.getCurrentUser().id;
+    
+        message.conversationId = this.conversation.id;
+        message.sender = sender;
+        message.sentAt = new Date().toISOString();
+        message.type = fileType;
+        message.fileName = selectedFile.name;
+        message.dataFile = new FileData();
+        
+        message.dataFile.data = e.target.result.toString().split(',')[1];
+        message.dataFile.contentType = selectedFile.type;
+        message.dataFile.extension = selectedFile.name.split('.').pop()?.toLowerCase() || '';
+    
+        this.conversationService.sendMultimediaMessageToChannel(this.conversation, message);
 
-    const message: MultimediaMessage = new MultimediaMessage();
-    const sender: User = new User();
+      };
 
-    sender.id = SessionService.getCurrentUser().id;
-
-    message.conversationId = this.conversation.id;
-    message.sender = sender;
-    message.sentAt = new Date().toISOString();
-    message.type = fileType;
-    message.data = await Util.fileToBase64(selectedFile);
-
-    console.log(message);
-
-    this.conversationService.sendMessageToChannel(this.conversation, message);
+      reader.readAsDataURL(selectedFile);
+    }
   }
 
   onLeaveGroupCallBack(): void {

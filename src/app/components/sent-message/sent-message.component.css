@@ -3,3 +3,12 @@
     max-width: 70%;
     min-width: 40%;
 }
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    font-style: italic;
+}

@@ -17,6 +17,7 @@ import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
 import { Observable, Subscription } from 'rxjs';
 import { Util } from 'src/app/utils/util';
+import { StompService } from 'src/app/services/stomp.service';
 
 @Component({
   selector: 'app-conversations',
@@ -34,27 +35,15 @@ export class ConversationsComponent implements OnInit {
       private changePasswordModalService: ChangePasswordModalService,
       private joinConversationModalService: JoinGroupConversationModalService,
       private groupConversationModalService: GroupConversationModalService,
-      private userService: UserService,
-      private authService: AuthService,
-      private fileDownloadService: FileDownloadService
+      private userService: UserService
     ) {}
   
   ngOnInit(): void {
     this.currentUser = SessionService.getCurrentUser();
-
-    this.fileDownloadService.getFile(this.currentUser.avatarUrl).subscribe(
-      (successRes: any) => {
-        this.avatar = Util.getBase64FromBinary(successRes.data.data, successRes.data.contentType);
-      },
-      (errorRes: any) => {
-        console.log(errorRes.error.message);
-      }
-    );
-
     this.currentUserSupscription = this.userService.onCurrentUserChanged().subscribe((user: User) => {
       this.currentUser = user;
+      SessionService.setCurrentUser(this.currentUser);
     });
-    
   }
 
   ngOnDestroy(): void {
@@ -74,6 +63,6 @@ export class ConversationsComponent implements OnInit {
   }
 
   openCreateGroupConversation(): void {
-    this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation());
+    this.groupConversationModalService.openModal(GroupConversationModalComponent, "Create group conversation", new GroupConversation(), false);
   }
 }

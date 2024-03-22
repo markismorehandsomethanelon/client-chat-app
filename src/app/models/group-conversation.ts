@@ -1,10 +1,9 @@
 import { Conversation } from "./conversation";
-import { Message } from "./message";
-import { User } from "./user";
+import { FileData } from "./file-data";
 
 export class GroupConversation extends Conversation {
     name: string;
-    avatar: string;
+    avatarFile: FileData;
     ownerId: number;
 
     constructor(){

@@ -12,6 +12,10 @@ import { WebSocketService } from '../services/web-socket.service';
 import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { HEADER } from '../config';
+import { FileDownloadService } from './file-download.service';
+import { SessionService } from './session.service';
+import { Util } from '../utils/util';
+import { StompService } from './stomp.service';
 
 
 @Injectable({
@@ -21,6 +25,7 @@ export class ConversationService {
 
      // urls
      private CONVERSATIONS_BASE_URL: string = `${API_BASE_URL}/conversations`;
+     private GROUP_CONVERSATION_BASE_URL = `${API_BASE_URL}/groupConversations`;
      
      // shared conversations
      private conversations: Conversation[] = [];
@@ -30,12 +35,13 @@ export class ConversationService {
  
      // conversations subject
      private conversationsSubject: Subject<Conversation[]> = new Subject<Conversation[]>();
- 
      // current conversation subject
      private currentConversationSubject: Subject<Conversation> = new Subject<Conversation>();
- 
- 
-     constructor(private http: HttpClient, private websocketService: WebSocketService, private router: Router) {
+    
+     constructor(private http: HttpClient, 
+        private websocketService: WebSocketService, 
+        private stompService: StompService
+        ) {
    
      }
  
@@ -61,9 +67,23 @@ export class ConversationService {
              })
          );
      }
+
+     createGroupConversation(conversation: Conversation): Observable<any>{
+        return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
+            catchError(error => {
+                this.handleError(error);
+                throw error;
+            }),
+            map((body: any) => {
+                this.conversations.unshift(body.data);
+                this.subscribeConversationChannels([body.data]);
+            })
+        );
+    }
+    
  
      updateConversation(conversation: Conversation): Observable<any> {
-         return this.http.put<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
+         return this.http.put<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
              catchError(error => {
                  this.handleError(error);
                  throw error;
@@ -154,7 +174,6 @@ export class ConversationService {
              }),
              map((body: any) => {
                  this.currentConversation = body.data;
-                 console.log(this.currentConversation);
                  this.notifyObservers(this.currentConversationSubject, this.currentConversation);
              })
          );
@@ -171,11 +190,11 @@ export class ConversationService {
      subscribeConversationChannels(conversations: Conversation[]): void {
          conversations.forEach(conversation => {
              const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${conversation.id}/messages`;
-             this.websocketService.subscribe(URL, (res: any) => {
-                 if (!res.success){
-                     console.log(res.message);
-                     return;
-                 }
+             this.stompService.watch(URL, (res: any) => {
+                if (!res.success){
+                    console.log(res.message);
+                }
+
                  const message: Message = res.data as Message;
                  const conversation = this.conversations.find(conv => conv.id === message.conversationId);
                  this.conversations = this.conversations.filter(conv => conv.id !== conversation.id);
@@ -200,14 +219,22 @@ export class ConversationService {
      
  
      unsubscribeConversationChannel(deletedConversation: Conversation): void {
-         const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${deletedConversation.id}/messages`;
+         const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${deletedConversation.id}/textMessages`;
          this.websocketService.unsubscribe(URL, () => {
          });
      }
  
-     sendMessageToChannel(conversation: Conversation, message: Message): void {
-         const URL: string = `/app/conversations/${conversation.id}/messages`;
-         this.websocketService.send(URL, message);
+     sendTextMessageToChannel(conversation: Conversation, message: Message): void {
+         const URL: string = `/app/conversations/${conversation.id}/textMessages`;
+        //  this.websocketService.send(URL, message);
+        // this.newWebSocketService.sendMessage(URL, message);
+        // this.stompService.publish({URL, message});
+        this.stompService.publish(URL, message);
      }
+
+     sendMultimediaMessageToChannel(conversation: Conversation, message: Message): void {
+        const URL: string = `/app/conversations/${conversation.id}/multimediaMessages`;
+        this.stompService.publish(URL, message);
+    }
     
 }

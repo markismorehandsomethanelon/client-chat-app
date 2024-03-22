@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Conversation } from 'src/app/models/conversation';
 import { GroupConversation } from 'src/app/models/group-conversation';
-import { IndividualConversation } from 'src/app/models/individual-conversation';
+import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { ConversationService } from 'src/app/services/conversation.service';
+import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
-import { WebSocketService } from 'src/app/services/web-socket.service';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-conversation-list',
@@ -22,8 +23,11 @@ export class ConversationListComponent implements OnInit {
 
   selectedConversationId!: number;
 
+  avatarsFetched: boolean = false;
+
   constructor(private conversationService: ConversationService, 
-    private router: Router){
+    private router: Router,
+    private fileDownloadService: FileDownloadService){
   }
 
   ngOnInit(): void {
@@ -32,7 +36,7 @@ export class ConversationListComponent implements OnInit {
           this.conversations = conversations;
           this.filteredConversations = this.conversations;
       });
-    
+
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
   }
 
@@ -41,15 +45,14 @@ export class ConversationListComponent implements OnInit {
   }
 
   getConversationAvatar(conversation: Conversation): string {
+    if (conversation.instanceOf === "group") {
+      const groupConversation: GroupConversation = (conversation as GroupConversation);
+      return Util.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
+    }
+    const CURRENT_USER = SessionService.getCurrentUser();
+    const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
 
-    // if (conversation.instanceOf === "group") {
-    //   return (conversation as GroupConversation).avatar;
-    // }
-
-    // const CURRENT_USER = SessionService.getCurrentUser();
-    // const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
-    // return otherUser.avatar;
-    return "";
+    return Util.getBase64FromBinary(otherUser.avatarFile.data, otherUser.avatarFile.contentType);
   }
 
   getConversationName(conversation: Conversation): string {    
@@ -60,6 +63,23 @@ export class ConversationListComponent implements OnInit {
     const CURRENT_USER = SessionService.getCurrentUser();
     const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
     return otherUser.name;
+  }
+
+  getLastestMessage(conversation: Conversation): string {
+    if (conversation.lastestMessage == null || conversation.lastestMessage == undefined) {
+      return '';
+    }
+    if (conversation.lastestMessage.instanceOf === 'TEXT') {
+      return `${conversation.lastestMessage.sender.name}: ${(conversation.lastestMessage as any).content}`;
+    }
+    const multimediaMessage: MultimediaMessage = conversation.lastestMessage as MultimediaMessage;
+    if (multimediaMessage.type === 'IMAGE' || multimediaMessage.type === 'AUDIO' ) {
+      return `${multimediaMessage.sender.name} has sent an ${multimediaMessage.type.toLowerCase()}`;  
+    }
+    if (multimediaMessage.type === 'OTHER') {
+      return `${multimediaMessage.sender.name} has sent a file`;
+    }
+    return `${multimediaMessage.sender.name} has sent a ${multimediaMessage.type.toLowerCase()}`;
   }
 
 

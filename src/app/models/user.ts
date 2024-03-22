@@ -1,5 +1,7 @@
+import { FileData } from "./file-data";
+
 export class User {
     id: number;
     name: string;
-    avatarUrl: string;
+    avatarFile: FileData;
 }

@@ -7,3 +7,12 @@
 .bg-light-grey {
     background-color: #f0f2f5;
 }
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    font-style: italic;
+}

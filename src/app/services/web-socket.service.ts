@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as SockJS from 'sockjs-client';
-import { Message, Stomp, StompSubscription } from '@stomp/stompjs';
-import { WEB_SOCKET_PUBLIC_ENDPOINT } from '../config';
-import { Message as MessageModel } from '../models/message';
-import { SessionService } from './session.service';
+import { Stomp, StompConfig, StompSubscription } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -15,18 +12,19 @@ export class WebSocketService {
   private socket: any;
   private stompClient: any;
   private stompSubscriptions: Map<string, StompSubscription>;
+
   connectedSubject = new Subject<void>();
   
   constructor() { }
 
-  connect(): void {
+  w(): void {
     this.socket = new SockJS(this.URL);
     this.stompClient = Stomp.over(this.socket);
-    this.stompClient.maxWebSocketFrameSize = 16 * 1024 * 1024 * 1024;
-    this.stompSubscriptions = new Map();
 
-    this.stompClient.connect({}, frame => {
+    this.stompSubscriptions = new Map();
+    this.stompClient.connect({}, (frame: any) => {
       console.log('Connected: ' + frame);
+      console.log(this.stompClient.maxWebSocketFrameSize);
       this.connectedSubject.next();
     }, error => {
       console.log('Connection error: ' + error);
@@ -46,6 +44,7 @@ export class WebSocketService {
         const subscription = this.stompClient.subscribe(destination, (res: any) => {
           callback(JSON.parse(res.body));
         });
+
         this.stompSubscriptions.set(destination, subscription);
     }
   }

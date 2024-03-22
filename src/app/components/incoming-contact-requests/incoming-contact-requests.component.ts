@@ -5,6 +5,7 @@ import { IncomingContactRequestService } from 'src/app/services/incoming-contact
 import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { SessionService } from 'src/app/services/session.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-incoming-contact-requests',
@@ -36,6 +37,10 @@ export class IncomingContactRequestComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.incomingContactRequestsSubscription.unsubscribe();
+  }
+
+  getAvatar(contact: Contact): string {
+    return Util.getBase64FromBinary(contact.sender.avatarFile.data, contact.sender.avatarFile.contentType);
   }
 
   onAccepted(incomingContactRequest: Contact): void {

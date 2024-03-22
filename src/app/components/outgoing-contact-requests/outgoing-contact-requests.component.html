@@ -19,7 +19,7 @@
                 <div class="list-group-item list-group-item-action">
                     <div class="d-flex justify-content-between">
                         <div class="d-flex align-items-center">
-                            <img class="rounded-circle" src="{{outgoingContactRequest.sender.avatar}}" alt=" " width="50" height="50"/>
+                            <img class="rounded-circle" [src]="getAvatar(outgoingContactRequest)" alt=" " width="50" height="50"/>
                             <div class="ms-3 w-100">
                                 <div class="my-auto text-truncate font-weight-bold flex-grow-1">{{outgoingContactRequest.sender.name}}</div>
                             </div>

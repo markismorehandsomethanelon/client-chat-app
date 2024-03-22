@@ -3,6 +3,7 @@ import { User } from 'src/app/models/user';
 import { UserProfileModalService } from 'src/app/services/user-profile-modal.service';
 import { UserService } from 'src/app/services/user.service';
 import { catchError, map } from 'rxjs/operators';
+import { Util } from 'src/app/utils/util';
 
 declare const bootstrap: any;
 
@@ -17,8 +18,6 @@ export class UserProfileModalComponent implements OnInit {
 
   user: User = new User();
 
-  avatar?: string;
-
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   errorMessage?: string;
@@ -29,6 +28,7 @@ export class UserProfileModalComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    console.log(this.user);
   }
 
   onSave(): void {
@@ -54,19 +54,20 @@ export class UserProfileModalComponent implements OnInit {
     this.user = user;
   }
 
-  setAvatar(avatar: string): void {
-    this.avatar = avatar;
+
+  getAvatar(): string {
+    return Util.getBase64FromBinary(this.user.avatarFile.data, this.user.avatarFile.contentType);
   }
 
   changeFile(event: any): void {
-    // const file: File = event.target.files[0];
-    // if (file) {
-    //   const reader = new FileReader();
-    //   reader.onload = (e) => {
-    //     this.user.avatar = e.target.result.toString();
-    //   };
-    //   reader.readAsDataURL(file);
-    // }
+    const file: File = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.user.avatarFile.data = e.target.result.toString().split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   chooseFile(): void {

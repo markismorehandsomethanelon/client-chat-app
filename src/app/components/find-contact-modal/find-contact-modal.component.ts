@@ -7,6 +7,7 @@ import { UserService } from 'src/app/services/user.service';
 import { OutgoingContactRequestService } from 'src/app/services/outcoming-contact-request.service';
 import { ConversationService } from 'src/app/services/conversation.service';
 import { IndividualConversation } from 'src/app/models/individual-conversation';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-find-contact-modal',
@@ -32,6 +33,10 @@ export class FindContactModelComponent implements OnInit {
   }
   
   ngOnInit(): void {
+  }
+
+  getAvatar(): string {
+    return Util.getBase64FromBinary(this.foundUser.avatarFile.data, this.foundUser.avatarFile.contentType);
   }
 
   onSend(): void {

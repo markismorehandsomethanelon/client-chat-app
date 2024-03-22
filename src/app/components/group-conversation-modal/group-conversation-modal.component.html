@@ -1,22 +1,24 @@
-<div class="modal-header">
-    <h5 class="modal-title">{{title}}</h5>
-    <button (click)="onClose()" type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal" ></button>
-</div>
-<div class="modal-body">
-    <div class="mb-2 d-flex justify-content-center">
-        <input #fileInput (change)="changeFile($event)" type="file" class="d-none" accept="image/*">
-        <img src="{{groupConversation.avatar}}" (click)="chooseFile()" class="rounded-circle border border-secondary"
-                width="100" height="100">
+<ng-container *ngIf="groupConversation.avatarFile">
+    <div class="modal-header">
+        <h5 class="modal-title">{{title}}</h5>
+        <button (click)="onClose()" type="button" class="btn-close" aria-label="Close" data-bs-dismiss="modal" ></button>
     </div>
-    <div class="mb-2">
-        <label for="nameInput" class="form-label">Name</label>
-        <input [(ngModel)]="groupConversation.name" id="nameInput" type="text" class="form-control" autofocus>
+    <div class="modal-body">
+        <div class="mb-2 d-flex justify-content-center">
+            <input #fileInput (change)="changeFile($event)" type="file" class="d-none" accept="image/*">
+            <img [src]="getAvatar()" (click)="chooseFile()" class="rounded-circle border border-secondary"
+                    width="100" height="100">
+        </div>
+        <div class="mb-2">
+            <label for="nameInput" class="form-label">Name</label>
+            <input [(ngModel)]="groupConversation.name" id="nameInput" type="text" class="form-control" autofocus>
+        </div>
+        <div class="mb-2">
+            <div class="text-danger">{{errorMessage}}</div>
+        </div>
     </div>
-    <div class="mb-2">
-        <div class="text-danger">{{errorMessage}}</div>
+    <div class="modal-footer">
+        <button (click)="onClose()" type="button" class="btn btn-secondary">Close</button>
+        <button (click)="onSave()" type="button" class="btn btn-success">Save</button>
     </div>
-</div>
-<div class="modal-footer">
-    <button (click)="onClose()" type="button" class="btn btn-secondary">Close</button>
-    <button (click)="onSave()" type="button" class="btn btn-success">Save</button>
-</div>
+</ng-container>

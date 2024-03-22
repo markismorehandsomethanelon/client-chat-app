@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { SessionService } from 'src/app/services/session.service';
 import { ContactService } from 'src/app/services/contact.service';
 import { User } from 'src/app/models/user';
+import { Util } from 'src/app/utils/util';
 
 @Component({
   selector: 'app-contacts',
@@ -40,16 +41,16 @@ export class ContactsComponent implements OnInit {
 
   }
 
-  getContactAvatar(contact: Contact): string {
-    // const CURRENT_USER: User = SessionService.getCurrentUser();
-    // return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.avatar : contact.sender.avatar;
-    return "";
+  getAvatar(contact: Contact): string {
+    const CURRENT_USER: User = SessionService.getCurrentUser();
+    const user: User = (CURRENT_USER.id === contact.sender.id) ? contact.receiver : contact.sender;
+    return Util.getBase64FromBinary(user.avatarFile.data, user.avatarFile.contentType);
+
   }
 
   getContactName(contact: Contact): string {
-    // const CURRENT_USER: User = SessionService.getCurrentUser();
-    // return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.name : contact.sender.name;
-    return "";
+    const CURRENT_USER: User = SessionService.getCurrentUser();
+    return (CURRENT_USER.id === contact.sender.id) ? contact.receiver.name : contact.sender.name;
   }
 
   onDeleted(contact: Contact): void {

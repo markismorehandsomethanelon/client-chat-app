@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +33,10 @@ import { FindContactModelComponent } from './components/find-contact-modal/find-
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ToastsComponent } from './components/toasts/toasts.component';
+import { RxStompService } from '@stomp/ng2-stompjs';
+import { StompService } from './services/stomp.service';
+import { ViewModalComponent } from './components/view-modal/view-modal.component';
+
 
 @NgModule({
   declarations: [
@@ -60,17 +65,22 @@ import { ToastsComponent } from './components/toasts/toasts.component';
     ConfirmModalComponent,
     JoinGroupConversationModalComponent,
     FindContactModelComponent,
-    ToastsComponent
+    ToastsComponent,
+    ViewModalComponent
   ],
   imports: [
     BrowserModule,
     RouterModule,
     FormsModule,
+    NgxExtendedPdfViewerModule,
     HttpClientModule,
     NgbModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    RxStompService, // Provide RxStompService here
+    StompService // Provide your StompService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

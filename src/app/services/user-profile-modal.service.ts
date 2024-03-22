@@ -15,7 +15,6 @@ export class UserProfileModalService {
         this.modalRef = this.modalService.open(component);
         this.modalRef.componentInstance.setEditable(editable);
         this.modalRef.componentInstance.setObject(user);
-        this.modalRef.componentInstance.setAvatar(avatar);
     }
  
     closeModal(): void {
