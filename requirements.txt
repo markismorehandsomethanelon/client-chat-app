@@ -1,0 +1,7 @@
+npm install -g @angular/cli@10 --save
+npm install @fortawesome/fontawesome-free --save
+npm install @ng-bootstrap/ng-bootstrap@^6.0.0 --save
+npm install @stomp/stompjs@6.0.0 --save
+npm install @stomp/ng2-stomp@8.0.0 --save
+npm install @stomp/rx-stomp@1.2.0 --save
+npm install ngx-extended-pdf-viewer@10.0.0 --save
