@@ -58,7 +58,7 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   getAvatar() {
-    if (this.conversation.instanceOf === "group") {
+    if (this.conversation.instanceOf === "GROUP") {
       const groupConversation: GroupConversation = (this.conversation as GroupConversation);
       return Util.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
     }
@@ -75,17 +75,17 @@ export class ConversationDetailComponent implements OnInit {
   }
 
   isGroupConversation(): boolean {
-    return this.conversation.instanceOf === "group";
+    return this.conversation.instanceOf === "GROUP";
   }
 
   openUpdateGroupConversationModal(): void {
-    if (this.conversation.instanceOf === "group") {
+    if (this.conversation.instanceOf === "GROUP") {
       this.groupConversationModalService.openModal(GroupConversationModalComponent, "Update group conversation", this.conversation, true);
     }
   }
 
   getConversationName(): string {    
-    if (this.conversation.instanceOf === "group") {
+    if (this.conversation.instanceOf === "GROUP") {
       return (this.conversation as any).name;
     }
 

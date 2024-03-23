@@ -8,6 +8,6 @@ export class MultimediaMessage extends Message {
 
     constructor() {
         super();
-        this.instanceOf = "multimedia";
+        this.instanceOf = "MULTIMEDIA";
     }
 }

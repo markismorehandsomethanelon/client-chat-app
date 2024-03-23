@@ -5,6 +5,6 @@ export class TextMessage extends Message {
 
     constructor(){
         super();
-        this.instanceOf = "text";
+        this.instanceOf = "TEXT";
     }
 }

@@ -8,6 +8,6 @@ export class GroupConversation extends Conversation {
 
     constructor(){
         super();
-        this.instanceOf = "group";
+        this.instanceOf = "GROUP";
     }
 }

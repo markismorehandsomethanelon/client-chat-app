@@ -83,7 +83,8 @@ export class ConversationService {
     
  
      updateConversation(conversation: Conversation): Observable<any> {
-         return this.http.put<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
+        console.log(conversation); 
+        return this.http.put<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
              catchError(error => {
                  this.handleError(error);
                  throw error;

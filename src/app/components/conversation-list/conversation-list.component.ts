@@ -35,6 +35,7 @@ export class ConversationListComponent implements OnInit {
       .subscribe((conversations: Conversation[]) => {
           this.conversations = conversations;
           this.filteredConversations = this.conversations;
+          console.log(this.conversations);
       });
 
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
@@ -45,7 +46,7 @@ export class ConversationListComponent implements OnInit {
   }
 
   getConversationAvatar(conversation: Conversation): string {
-    if (conversation.instanceOf === "group") {
+    if (conversation.instanceOf === "GROUP") {
       const groupConversation: GroupConversation = (conversation as GroupConversation);
       return Util.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
     }
@@ -56,7 +57,7 @@ export class ConversationListComponent implements OnInit {
   }
 
   getConversationName(conversation: Conversation): string {    
-    if (conversation.instanceOf === "group") {
+    if (conversation.instanceOf === "GROUP") {
       return (conversation as GroupConversation).name;
     }
 
