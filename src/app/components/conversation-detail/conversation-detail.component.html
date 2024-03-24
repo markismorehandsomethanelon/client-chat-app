@@ -37,12 +37,10 @@
         </div>
         <!-- Chat window -->
         <div scrollToBottom class="border-bottom overflow-auto flex-grow-1">
-            <ng-container *ngFor="let message of conversation?.messages">
-                <ng-container *ngIf="isSentMessage(message)">
-                    <app-sent-message [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
-                </ng-container>
-                <ng-container *ngIf="!isSentMessage(message)">
-                    <app-received-message [message]="message" [messageType]="getMessageType(message)"></app-received-message>
+            <ng-container *ngFor="let message of conversation?.messages" #messageElements>
+                <ng-container [ngSwitch]="isSentMessage(message)">
+                    <app-sent-message *ngSwitchCase="true" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
+                    <app-received-message *ngSwitchCase="false" [message]="message" [messageType]="getMessageType(message)"></app-received-message>
                 </ng-container>
             </ng-container>
         </div>

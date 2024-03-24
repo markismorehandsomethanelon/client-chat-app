@@ -7,6 +7,7 @@ export class Conversation {
     messages: Message[];
     members: User[];
     instanceOf: string;
+    numberOfUnreadMessages: number = 0;
 
     constructor(){
         this.lastestMessage = null;

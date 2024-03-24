@@ -1,3 +1,4 @@
+import { MessageNotification } from "./message-notification";
 import { User } from "./user";
 
 export class Message {
@@ -6,4 +7,5 @@ export class Message {
     sender: User;
     conversationId: number;
     instanceOf: string;
+    notifications: MessageNotification[] = [];
 }

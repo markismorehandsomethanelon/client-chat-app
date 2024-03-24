@@ -66,7 +66,11 @@ export class StompService {
     } 
   }
 
-  publish(topic: string, body: any): void {
-    this.rxStompService.publish({ destination: topic, body: JSON.stringify(body)});
-  }  
+  publish(topic: string, body?: any): void {
+    const message = { destination: topic };
+    if (body !== undefined) {
+      message['body'] = JSON.stringify(body);
+    }
+    this.rxStompService.publish(message);
+  }
 }

@@ -40,7 +40,11 @@
                         </div>
                         <div class="d-flex justify-content-between mt-2">
                             <p class="my-auto small text-truncate w-100">{{getLastestMessage(conversation)}}</p>
-                            <p class="my-auto badge bg-success badge-pill ms-3">1</p>
+                            <p *ngIf="conversation.numberOfUnreadMessages != 0" class="my-auto badge bg-success badge-pill ms-3">
+                                <ng-container *ngIf="conversation.numberOfUnreadMessages > 99">99+</ng-container>
+                                <ng-container *ngIf="conversation.numberOfUnreadMessages <= 99">{{conversation.numberOfUnreadMessages}}</ng-container>
+                            </p>
+
                         </div>
                     </div>
                 </div>

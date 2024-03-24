@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -29,6 +29,7 @@ export class ConversationDetailComponent implements OnInit {
   conversation: Conversation;
 
   @ViewChild('fileInput') fileInput: any;
+  @ViewChildren('messageElements') messageElements: QueryList<ElementRef>;
 
   private conversationSubscription: Subscription;
 
@@ -43,6 +44,20 @@ export class ConversationDetailComponent implements OnInit {
     this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
       (conversation: Conversation) => {
         this.conversation = conversation;
+        const firstUnreadMessage = this.conversation.messages.find(message => 
+          message.notifications.some(notification => !notification.read) && 
+          message.sender.id !== SessionService.getCurrentUser().id
+        );
+        console.log(this.messageElements);
+        if (firstUnreadMessage) {
+          const messageElement = this.messageElements.find(messageElement => 
+            messageElement.nativeElement.id === firstUnreadMessage.id.toString()
+          );
+          console.log(messageElement.nativeElement);
+          if (messageElement) {
+            messageElement.nativeElement.scrollIntoView();
+          }
+        }
       }
     );
 

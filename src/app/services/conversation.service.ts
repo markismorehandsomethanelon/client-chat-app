@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { API_BASE_URL, WEB_SOCKET_PUBLIC_ENDPOINT } from '../config';
+import { API_BASE_URL, WEB_SOCKET_PRIVATE_ENDPOINT, WEB_SOCKET_PUBLIC_ENDPOINT } from '../config';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GroupConversation } from '../models/group-conversation';
 import { User } from '../models/user';
@@ -16,6 +16,7 @@ import { FileDownloadService } from './file-download.service';
 import { SessionService } from './session.service';
 import { Util } from '../utils/util';
 import { StompService } from './stomp.service';
+import { MessageNotification } from '../models/message-notification';
 
 
 @Injectable({
@@ -187,31 +188,77 @@ export class ConversationService {
      private notifyObservers(subject: Subject<any>, data: any): void {
          subject.next(data);
      }
+
+     private markMessageAsRead(conversation: Conversation): Observable<void> {
+            const URL = `${this.CONVERSATIONS_BASE_URL}/${conversation.id}/messages/notifications`;
+            return this.http.put<void>(URL, null).pipe(
+                catchError(error => {
+                    this.handleError(error);
+                    throw error;
+                }),
+                map((body: any) => {
+                    conversation.numberOfUnreadMessages = 0;
+                })
+            );
+     }
+
+     subscribeMessageNotificationChannel(): void {
+        const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/a/${SessionService.getCurrentUser().id}/messageNotifications`;
+        this.stompService.watch(URL, (res: any) => {
+            if (!res.success){
+                console.log(res.message);
+            }
+        });
+    }
  
      subscribeConversationChannels(conversations: Conversation[]): void {
+        this.subscribeMessageNotificationChannel();
          conversations.forEach(conversation => {
              const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${conversation.id}/messages`;
+            // const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/user/${SessionService.getCurrentUser().id}/conversations/${conversation.id}/messages`;
              this.stompService.watch(URL, (res: any) => {
                 if (!res.success){
                     console.log(res.message);
                 }
 
-                 const message: Message = res.data as Message;
-                 const conversation = this.conversations.find(conv => conv.id === message.conversationId);
-                 this.conversations = this.conversations.filter(conv => conv.id !== conversation.id);
-                 this.conversations.unshift(conversation);
-                 
-                 if (conversation) {
-                     if (conversation.messages == null){
-                         conversation.messages = [];
-                     }
-                     conversation.messages.push(message);
-                     conversation.lastestMessage = message;
-                     if (this.currentConversation && this.currentConversation.id == conversation.id) {
-                         this.currentConversation = conversation;
-                         this.notifyObservers(this.currentConversationSubject, this.currentConversation);
-                     }
-                 }
+                console.log(res.data);
+                const message: Message = res.data as Message;
+                // const messageNotification: MessageNotification = message.notifications;
+                //    const messageNotifications: MessageNotification[] =  message.notifications.filter(messageNotification => messageNotification.userId === SessionService.getCurrentUser().id);
+                
+                const conversation = this.conversations.find(conv => conv.id === message.conversationId);
+                
+                if (conversation) {
+                    if (conversation.messages == null){
+                        conversation.messages = [];
+                    }
+                    conversation.messages.push(message);
+                    conversation.lastestMessage = message;
+
+                    if (this.currentConversation && this.currentConversation.id == conversation.id) {
+                        
+                        console.log("SEND");
+                        console.log(conversation.messages);
+
+                        conversation.messages.forEach(message => {
+                            const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
+                            messageNotifications.forEach(messageNotification => {
+                                this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
+                                messageNotification.read = true;
+                            });
+                            conversation.numberOfUnreadMessages = 0;
+                        });
+
+                        this.currentConversation = conversation;
+                        this.notifyObservers(this.currentConversationSubject, this.currentConversation);
+                    }else {
+                       conversation.numberOfUnreadMessages++;
+                    }
+                }
+
+                this.conversations = this.conversations.filter(conv => conv.id !== conversation.id);
+                this.conversations.unshift(conversation);
+
                  this.notifyObservers(this.conversationsSubject, this.conversations);
              });
          });
