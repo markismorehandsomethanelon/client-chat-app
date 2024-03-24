@@ -44,7 +44,6 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
     private router: Router) {}
 
   ngOnInit(): void {
-    
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => 
         this.conversationService.findById(+params.get('id'))
@@ -61,26 +60,36 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
       (conversation: Conversation) => {
         this.conversation = conversation;
 
-        const firstUnreadMessage = this.conversation.messages.find(message => 
-          message.notifications.some(notification => !notification.read) && 
-          message.sender.id !== SessionService.getCurrentUser().id
-        );
-
-        this.firstUnreadMessageId = firstUnreadMessage.id;
-
         this.messageElements.changes.subscribe(
           (messageElements: QueryList<ElementRef>) => {
+
+            const firstUnreadMessage = this.conversation.messages.find(message => 
+              message.notifications.some(notification => !notification.read) && 
+              message.sender.id !== SessionService.getCurrentUser().id
+            );
+    
+            if (!firstUnreadMessage) {
+              console.log(this.chatWindow);
+              this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
+              return;
+            }
+
+            this.firstUnreadMessageId = firstUnreadMessage.id;
+
             if (firstUnreadMessage) {
               const messageElement = messageElements.find(messageElement => 
                 messageElement.nativeElement.id == firstUnreadMessage.id
               );
 
+
               if (messageElement) {
-                // messageElement.nativeElement.scrollIntoView();
                 this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight * 2);
               }
+
+              this.conversationService.markAllMessageAsRead(this.conversation);
+
             }
-          }  
+          }
         );
       }
     );

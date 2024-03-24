@@ -53,7 +53,7 @@ export class ConversationService {
      onCurrentConversationChanged(): Observable<Conversation> {
          return this.currentConversationSubject.asObservable();
      }
- 
+
      // Return as observable<responseDto>
      createConversation(conversation: Conversation): Observable<any>{
          return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
@@ -189,17 +189,20 @@ export class ConversationService {
          subject.next(data);
      }
 
-     private markMessageAsRead(conversation: Conversation): Observable<void> {
-            const URL = `${this.CONVERSATIONS_BASE_URL}/${conversation.id}/messages/notifications`;
-            return this.http.put<void>(URL, null).pipe(
-                catchError(error => {
-                    this.handleError(error);
-                    throw error;
-                }),
-                map((body: any) => {
-                    conversation.numberOfUnreadMessages = 0;
-                })
-            );
+     markAllMessageAsRead(conversation: Conversation): void {
+        conversation.messages.forEach(message => {
+            const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
+            messageNotifications.forEach(messageNotification => {
+                this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
+            });
+        });
+        conversation.numberOfUnreadMessages = 0;
+        this.currentConversation = conversation;
+        this.notifyObservers(this.currentConversationSubject, this.currentConversation);
+     }
+
+     markMessageAsRead(messageNotification: MessageNotification): void {
+        this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
      }
 
      subscribeMessageNotificationChannel(): void {
@@ -208,6 +211,14 @@ export class ConversationService {
             if (!res.success){
                 console.log(res.message);
             }
+            this.currentConversation.messages.forEach(message => {
+                const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
+                messageNotifications.forEach(messageNotification => {
+                    messageNotification.read = true;
+                });
+                this.currentConversation.numberOfUnreadMessages = 0;
+            });
+            this.notifyObservers(this.currentConversationSubject, this.currentConversation);
         });
     }
  
@@ -223,8 +234,6 @@ export class ConversationService {
 
                 console.log(res.data);
                 const message: Message = res.data as Message;
-                // const messageNotification: MessageNotification = message.notifications;
-                //    const messageNotifications: MessageNotification[] =  message.notifications.filter(messageNotification => messageNotification.userId === SessionService.getCurrentUser().id);
                 
                 const conversation = this.conversations.find(conv => conv.id === message.conversationId);
                 
@@ -237,9 +246,6 @@ export class ConversationService {
 
                     if (this.currentConversation && this.currentConversation.id == conversation.id) {
                         
-                        console.log("SEND");
-                        console.log(conversation.messages);
-
                         conversation.messages.forEach(message => {
                             const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
                             messageNotifications.forEach(messageNotification => {
