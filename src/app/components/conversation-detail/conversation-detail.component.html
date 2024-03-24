@@ -36,12 +36,15 @@
             </div>
         </div>
         <!-- Chat window -->
-        <div scrollToBottom class="border-bottom overflow-auto flex-grow-1">
-            <ng-container *ngFor="let message of conversation?.messages" #messageElements>
-                <ng-container [ngSwitch]="isSentMessage(message)">
+        <div class="border-bottom overflow-auto flex-grow-1" #chatWindow>
+            <ng-container *ngFor="let message of conversation?.messages; let id = index">
+                <ng-container *ngIf="isFirstUnreadMessage(id)">
+                    <div class="text-center text-danger small border-bottom border-danger p-2">Unread messages</div>
+                </ng-container>
+                <div [ngSwitch]="isSentMessage(message)" #messageElements id="{{id}}">
                     <app-sent-message *ngSwitchCase="true" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
                     <app-received-message *ngSwitchCase="false" [message]="message" [messageType]="getMessageType(message)"></app-received-message>
-                </ng-container>
+                </div>
             </ng-container>
         </div>
         <!-- Input area -->

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostBinding, Input, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Message } from 'src/app/models/message';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
@@ -16,6 +16,8 @@ export class ReceivedMessageComponent implements OnInit {
   @Input() messageType: string;
 
   @Input() message: Message;
+
+  @HostBinding('attr.id') id: any;
 
   constructor(private sanitizer: DomSanitizer,
     private viewModalService: ViewModalService ) { }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -24,16 +24,19 @@ import { FileData } from 'src/app/models/file-data';
   templateUrl: './conversation-detail.component.html',
   styleUrls: ['./conversation-detail.component.css']
 })
-export class ConversationDetailComponent implements OnInit {
+export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDestroy{
 
   conversation: Conversation;
 
   @ViewChild('fileInput') fileInput: any;
   @ViewChildren('messageElements') messageElements: QueryList<ElementRef>;
+  @ViewChild('chatWindow') chatWindow: ElementRef;
 
   private conversationSubscription: Subscription;
 
   private LEAVE_GROUP_CONTENT: string = "Are you sure to leave this group";
+  
+  private firstUnreadMessageId: number = -1;
 
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
@@ -41,26 +44,7 @@ export class ConversationDetailComponent implements OnInit {
     private router: Router) {}
 
   ngOnInit(): void {
-    this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
-      (conversation: Conversation) => {
-        this.conversation = conversation;
-        const firstUnreadMessage = this.conversation.messages.find(message => 
-          message.notifications.some(notification => !notification.read) && 
-          message.sender.id !== SessionService.getCurrentUser().id
-        );
-        console.log(this.messageElements);
-        if (firstUnreadMessage) {
-          const messageElement = this.messageElements.find(messageElement => 
-            messageElement.nativeElement.id === firstUnreadMessage.id.toString()
-          );
-          console.log(messageElement.nativeElement);
-          if (messageElement) {
-            messageElement.nativeElement.scrollIntoView();
-          }
-        }
-      }
-    );
-
+    
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => 
         this.conversationService.findById(+params.get('id'))
@@ -68,8 +52,42 @@ export class ConversationDetailComponent implements OnInit {
     ).subscribe();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.conversationSubscription.unsubscribe();
+  }
+
+  ngAfterViewInit() {
+    this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
+      (conversation: Conversation) => {
+        this.conversation = conversation;
+
+        const firstUnreadMessage = this.conversation.messages.find(message => 
+          message.notifications.some(notification => !notification.read) && 
+          message.sender.id !== SessionService.getCurrentUser().id
+        );
+
+        this.firstUnreadMessageId = firstUnreadMessage.id;
+
+        this.messageElements.changes.subscribe(
+          (messageElements: QueryList<ElementRef>) => {
+            if (firstUnreadMessage) {
+              const messageElement = messageElements.find(messageElement => 
+                messageElement.nativeElement.id == firstUnreadMessage.id
+              );
+
+              if (messageElement) {
+                // messageElement.nativeElement.scrollIntoView();
+                this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight * 2);
+              }
+            }
+          }  
+        );
+      }
+    );
+  }
+
+  isFirstUnreadMessage(id: number): boolean {
+    return this.firstUnreadMessageId == id;
   }
 
   getAvatar() {
@@ -212,7 +230,6 @@ export class ConversationDetailComponent implements OnInit {
   onLeaveGroupCallBack(): void {
     const leaveGroupConversationRequest: LeaveGroupConversationRequest = new LeaveGroupConversationRequest();
     
-    console.log(this);
 
     leaveGroupConversationRequest.conversationId = this.conversation.id;
     leaveGroupConversationRequest.leaverId = SessionService.getCurrentUser().id;
