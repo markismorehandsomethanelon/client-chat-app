@@ -49,6 +49,8 @@ export class ConversationListComponent implements OnInit, OnDestroy {
           this.filteredConversations = this.conversations;
       });
 
+      // this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
+
     this.conversationService.subscribeMarkAllMessagesAsRead();
     this.conversationService.subscribeMarkMessageAsRead();
 

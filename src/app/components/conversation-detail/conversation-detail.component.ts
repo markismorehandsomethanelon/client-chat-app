@@ -51,6 +51,19 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
     ).subscribe(() => {
       this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
     });
+
+    this.unreadMessagesSubscription = this.conversationService.onUnreadMessagesChanged().subscribe(
+      (unreadMessages: Map<number, MessageNotification>) => {
+        this.unreadMessages = unreadMessages;
+        console.log("UNREADMESSAGES");
+        console.log(this.unreadMessages);
+      });
+
+    this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
+      (conversation: Conversation) => {
+        this.conversation = conversation;
+      }
+    );
   }
 
   ngOnDestroy(): void {
@@ -59,39 +72,28 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit() {
-    
-    this.unreadMessagesSubscription = this.conversationService.onUnreadMessagesChanged().subscribe(
-      (unreadMessages: Map<number, MessageNotification>) => {
-        this.unreadMessages = unreadMessages;
+    this.messageElements.changes.subscribe(
+      (messageElements: QueryList<ElementRef>) => {
+
+        if (this.messageElements.length == 0 || !this.unreadMessages) {
+          console.log("sadasd");
+          this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
+          return;
+        }
+
+        const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
+        console.log("FIRST");
         console.log(this.unreadMessages);
-      });
-
-    this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
-      (conversation: Conversation) => {
-        this.conversation = conversation;
-
-        this.messageElements.changes.subscribe(
-          (messageElements: QueryList<ElementRef>) => {
-
-            if (this.unreadMessages.size == 0) {
-              this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
-              return;
-            }
-
-            const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
-    
-            const messageElement = messageElements.find(messageElement => 
-              messageElement.nativeElement.id == firstUnreadMessage.id
-            );
-
-            if (messageElement == null) {
-              return;
-            }
-
-            this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight * 2);
-            this.conversationService.markAllMessagesAsRead(this.conversation.id);
-          }
+        const messageElement = messageElements.find(messageElement => 
+          messageElement.nativeElement.id == firstUnreadMessage.id
         );
+
+        if (messageElement == null) {
+          return;
+        }
+
+        this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight * 2);
+        this.conversationService.markAllMessagesAsRead(this.conversation.id);
       }
     );
   }
