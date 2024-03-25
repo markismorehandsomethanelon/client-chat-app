@@ -22,10 +22,11 @@ export class ConversationService {
 
      private CONVERSATIONS_BASE_URL: string = `${API_BASE_URL}/conversations`;
      private GROUP_CONVERSATION_BASE_URL = `${API_BASE_URL}/groupConversations`;
+     private MESSAGE_NOTIFICATION_BASE_URL = `${API_BASE_URL}/messageNotifications`;
      
      private conversations: Map<number, Conversation> = new Map();
      private currentConversation?: Conversation;
-     private unreadMessages: Map<number, Message> = new Map();
+     private unreadMessages: Map<number, MessageNotification> = new Map();
  
      private conversationsSubject: Subject<Map<number, Conversation>> = new Subject<Map<number, Conversation>>();
      private currentConversationSubject: Subject<Conversation> = new Subject<Conversation>();
@@ -78,6 +79,23 @@ export class ConversationService {
             map((body: any) => {
                 this.currentConversation = body.data;
                 ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+            })
+        );
+    }
+    
+    findUnreadMessages(conversationId: number): Observable<any> {
+        const URL = `${this.MESSAGE_NOTIFICATION_BASE_URL}/conversations/${conversationId}/unreadMessages/user/${SessionService.getCurrentUser().id}`;
+        return this.http.get<any>(URL).pipe(
+            catchError(error => {
+                console.log(error)
+                throw error;
+            }),
+            map((body: any) => {
+                const unreadMessages: MessageNotification[] = body.data;
+                unreadMessages.forEach(unreadMessage => {
+                    this.unreadMessages.set(unreadMessage.messageId, unreadMessage);
+                });
+                ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
             })
         );
     }
@@ -207,9 +225,11 @@ export class ConversationService {
             }
             const messageNotification: MessageNotification = res.data as MessageNotification;
             this.unreadMessages.delete(messageNotification.id);
-            this.currentConversation.numberOfUnreadMessages--;
+            this.currentConversation.numberOfUnreadMessages = 0;
             ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
             ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+
+            console.log("NOTICE IS CHANGED");
         });
     }
 
@@ -251,7 +271,6 @@ export class ConversationService {
                 }else {
                     foundConversation.numberOfUnreadMessages++;
                 }
-
                 this.conversations.set(foundConversation.id, foundConversation);
                 ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              });

@@ -38,8 +38,6 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
 
   private LEAVE_GROUP_CONTENT: string = "Are you sure to leave this group";
   
-  private firstUnreadMessageId: number = -1;
-
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
     private confirmModalService: ConfirmModalService,
@@ -50,7 +48,9 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
       switchMap((params: ParamMap) => 
         this.conversationService.findById(+params.get('id'))
       )
-    ).subscribe();
+    ).subscribe(() => {
+      this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
+    });
   }
 
   ngOnDestroy(): void {
@@ -63,14 +63,12 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
     this.unreadMessagesSubscription = this.conversationService.onUnreadMessagesChanged().subscribe(
       (unreadMessages: Map<number, MessageNotification>) => {
         this.unreadMessages = unreadMessages;
+        console.log(this.unreadMessages);
       });
 
     this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
       (conversation: Conversation) => {
         this.conversation = conversation;
-
-        console.log("CURRENT CONVERSATION CHANGED");
-        console.log(this.conversation);
 
         this.messageElements.changes.subscribe(
           (messageElements: QueryList<ElementRef>) => {
