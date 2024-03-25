@@ -7,5 +7,8 @@ export class Message {
     sender: User;
     conversationId: number;
     instanceOf: string;
-    notifications: MessageNotification[] = [];
+
+    static isTextMessage(message: Message): boolean {
+        return message.instanceOf === 'TEXT';
+    }
 }

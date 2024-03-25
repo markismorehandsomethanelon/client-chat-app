@@ -9,15 +9,9 @@ import { GroupConversationModalService } from 'src/app/services/group-conversati
 import { GroupConversationModalComponent } from 'src/app/components/group-conversation-modal/group-conversation-modal.component';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
-import { AuthService } from 'src/app/services/auth.service';
-import { ChangePasswordRequest } from 'src/app/requests/change-password.request';
 import { GroupConversation } from 'src/app/models/group-conversation';
-import { ConversationService } from 'src/app/services/conversation.service';
-import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
 import { Observable, Subscription } from 'rxjs';
-import { Util } from 'src/app/utils/util';
-import { StompService } from 'src/app/services/stomp.service';
 
 @Component({
   selector: 'app-conversations',

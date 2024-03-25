@@ -8,45 +8,35 @@ import { Conversation } from '../models/conversation';
 import { Message } from '../models/message';
 import { JoinGroupConversationRequest } from '../requests/join-group-conversation.request';
 import { LeaveGroupConversationRequest } from '../requests/leave-group-conversation.request';
-import { WebSocketService } from '../services/web-socket.service';
 import { catchError, map } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { HEADER } from '../config';
-import { FileDownloadService } from './file-download.service';
 import { SessionService } from './session.service';
-import { Util } from '../utils/util';
 import { StompService } from './stomp.service';
 import { MessageNotification } from '../models/message-notification';
-
+import { ObserverUtil } from '../utils/observer-util';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConversationService {
 
-     // urls
      private CONVERSATIONS_BASE_URL: string = `${API_BASE_URL}/conversations`;
      private GROUP_CONVERSATION_BASE_URL = `${API_BASE_URL}/groupConversations`;
      
-     // shared conversations
-     private conversations: Conversation[] = [];
- 
-     // current conversation
+     private conversations: Map<number, Conversation> = new Map();
      private currentConversation?: Conversation;
+     private unreadMessages: Map<number, Message> = new Map();
  
-     // conversations subject
-     private conversationsSubject: Subject<Conversation[]> = new Subject<Conversation[]>();
-     // current conversation subject
+     private conversationsSubject: Subject<Map<number, Conversation>> = new Subject<Map<number, Conversation>>();
      private currentConversationSubject: Subject<Conversation> = new Subject<Conversation>();
+     private unreadMessagesSubject: Subject<Map<number, Message>> = new Subject<Map<number, Message>>();
     
      constructor(private http: HttpClient, 
-        private websocketService: WebSocketService, 
-        private stompService: StompService
-        ) {
+        private stompService: StompService) {
    
      }
  
-     onConversationsChanged(): Observable<Conversation[]> {
+     onConversationsChanged(): Observable<Map<number, Conversation>> {
          return this.conversationsSubject.asObservable();
      }
  
@@ -54,48 +44,87 @@ export class ConversationService {
          return this.currentConversationSubject.asObservable();
      }
 
-     // Return as observable<responseDto>
+     onUnreadMessagesChanged(): Observable<Map<number, Message>> {
+        return this.unreadMessagesSubject.asObservable();
+    }
+
+     findByMember(member: User): Observable<any> {
+        return this.http.get<any>(`${this.CONVERSATIONS_BASE_URL}/members/${member.id}`).pipe(
+            catchError(error => {
+                console.log(error);
+                throw error;
+            }),
+            map((body: any) => {
+                
+                const CONVERSATIONS: Conversation[] = body.data;
+
+                CONVERSATIONS.forEach(conversation => {
+                    this.conversations.set(conversation.id, conversation);
+                });
+
+                this.subscribeConversationChannels(this.conversations);
+                ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
+            })
+        );
+    }
+
+    findById(id: number): Observable<any> {
+        const URL = `${this.CONVERSATIONS_BASE_URL}/${id}`;
+        return this.http.get<any>(URL).pipe(
+            catchError(error => {
+                console.log(error)
+                throw error;
+            }),
+            map((body: any) => {
+                this.currentConversation = body.data;
+                ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+            })
+        );
+    }
+
      createConversation(conversation: Conversation): Observable<any>{
          return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
              catchError(error => {
-                 this.handleError(error);
+                 console.log(error)
                  throw error;
              }),
              map((body: any) => {
-                 this.conversations.unshift(body.data);
-                 this.subscribeConversationChannels([body.data]);
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
+                 const newConversation: Conversation = body.data;
+                 this.conversations.set(newConversation.id, newConversation);
+                 this.subscribeConversationChannels(new Map([[newConversation.id, newConversation]]));
+                 ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              })
          );
      }
 
-     createGroupConversation(conversation: Conversation): Observable<any>{
-        return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
-            catchError(error => {
-                this.handleError(error);
-                throw error;
-            }),
-            map((body: any) => {
-                this.conversations.unshift(body.data);
-                this.subscribeConversationChannels([body.data]);
-            })
-        );
-    }
-    
+    //  createGroupConversation(conversation: Conversation): Observable<any>{
+    //     return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
+    //         catchError(error => {
+    //             console.log(error)
+    //             throw error;
+    //         }),
+    //         map((body: any) => {
+    //             this.conversations.unshift(body.data);
+    //             this.subscribeConversationChannels([body.data]);
+    //         })
+    //     );
+    // }
  
      updateConversation(conversation: Conversation): Observable<any> {
         console.log(conversation); 
         return this.http.put<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
              catchError(error => {
-                 this.handleError(error);
+                 console.log(error)
                  throw error;
              }),
              map((body: any) => {
-                 const index = this.conversations.findIndex(curConv => curConv.id === body.data.id);
-                 if (index !== -1) {
-                     this.conversations[index] = body.data;
-                     this.notifyObservers(this.conversationsSubject, this.conversations);
-                 }
+                if (!body.success) {
+                    console.log(body.message);
+                    return;
+                }
+                const conversation: Conversation = body.data as Conversation;
+                this.conversations.set(conversation.id, conversation);
+                ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              })
          );
      }
@@ -103,14 +132,18 @@ export class ConversationService {
      deleteConversation(conversationId: number): Observable<any> {
          return this.http.delete<any>(`${this.CONVERSATIONS_BASE_URL}/${conversationId}`).pipe(
              catchError(error => {
-                 this.handleError(error);
+                 console.log(error)
                  throw error;
              }),
              map((body: any) => {
-                 const conversation: Conversation = this.conversations.find(currentConversation => currentConversation.id !== conversationId);
-                 this.conversations = this.conversations.filter(currentConversation => currentConversation.id !== conversationId);
-                 this.unsubscribeConversationChannel(conversation);
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
+                if (!body.success) {
+                    console.log(body.message);
+                    return;
+                }
+
+                this.conversations.delete(conversationId);
+                this.unsubscribeConversationChannel(conversationId);
+                ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              })
          );
      }
@@ -119,33 +152,23 @@ export class ConversationService {
          const URL = `${this.CONVERSATIONS_BASE_URL}/members`;
          return this.http.post<any>(URL, joinGroupConversationRequest).pipe(
              catchError(error => {
-                 this.handleError(error);
+                 console.log(error)
                  throw error;
              }),
              map((body: any) => {
-                 this.conversations.unshift(body.data);
-                 this.subscribeConversationChannels([body.data]);
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
+                if (!body.success) {
+                    console.log(body.message);
+                    return;
+                }
+                const joinedConversation: GroupConversation = body.data;
+                this.conversations.set(joinedConversation.id, joinedConversation);
+                this.subscribeConversationChannels(new Map([[joinedConversation.id, joinedConversation]]));
+                ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              })
          );
      }
  
-     // Return as observable<responseDto>
-     // Body.data is list conversation object
-     findByMember(member: User): Observable<any> {
-         return this.http.get<any>(`${this.CONVERSATIONS_BASE_URL}/members/${member.id}`).pipe(
-             catchError(error => {
-                 this.handleError(error);
-                 throw error;
-             }),
-             map((body: any) => {
-                 this.conversations = body.data;
-                 this.subscribeConversationChannels(this.conversations);
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
-             })
-         );
-     }
- 
+    
      leaveGroupConversation(leaveGroupConversationRequest: LeaveGroupConversationRequest): Observable<any> {
          const URL = `${this.CONVERSATIONS_BASE_URL}/members`;
          const OPTIONS = {
@@ -154,135 +177,88 @@ export class ConversationService {
          };
          return this.http.delete<any>(URL, OPTIONS).pipe(
              catchError(error => {
-                 this.handleError(error);
+                 console.log(error)
                  throw error;
              }),
              map((body: any) => {
-                 const conversation: Conversation = this.conversations.find(currentConversation => currentConversation.id === leaveGroupConversationRequest.conversationId);
-                 this.conversations = this.conversations.filter(currentConversation => currentConversation.id !==  leaveGroupConversationRequest.conversationId);
-                 this.unsubscribeConversationChannel(conversation);
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
+                if (!body.success) {
+                    console.log(body.message);
+                    return;
+                }
+                 this.conversations.delete(leaveGroupConversationRequest.conversationId);
+                 this.unsubscribeConversationChannel(leaveGroupConversationRequest.conversationId);
+                 ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              })
          );
      }
- 
-     // Body.data is conversation object
-     findById(id: number): Observable<any> {
-         const URL = `${this.CONVERSATIONS_BASE_URL}/${id}`;
-         return this.http.get<any>(URL).pipe(
-             catchError(error => {
-                 this.handleError(error);
-                 throw error;
-             }),
-             map((body: any) => {
-                 this.currentConversation = body.data;
-                 this.notifyObservers(this.currentConversationSubject, this.currentConversation);
-             })
-         );
-     }
- 
-     private handleError(error: any): void {
-         console.error('Error:', error);
-     }
- 
-     private notifyObservers(subject: Subject<any>, data: any): void {
-         subject.next(data);
-     }
 
-     markAllMessageAsRead(conversation: Conversation): void {
-        conversation.messages.forEach(message => {
-            const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
-            messageNotifications.forEach(messageNotification => {
-                this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
-            });
-        });
-        conversation.numberOfUnreadMessages = 0;
-        this.currentConversation = conversation;
-        this.notifyObservers(this.currentConversationSubject, this.currentConversation);
-     }
-
-     markMessageAsRead(messageNotification: MessageNotification): void {
-        this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
-     }
-
-     subscribeMessageNotificationChannel(): void {
-        const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/a/${SessionService.getCurrentUser().id}/messageNotifications`;
+     subscribeMarkMessageAsRead(): void {
+        const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/user/${SessionService.getCurrentUser().id}/messageNotifications/markAsRead`;
         this.stompService.watch(URL, (res: any) => {
             if (!res.success){
                 console.log(res.message);
+                return;
             }
-            this.currentConversation.messages.forEach(message => {
-                const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
-                messageNotifications.forEach(messageNotification => {
-                    messageNotification.read = true;
-                });
-                this.currentConversation.numberOfUnreadMessages = 0;
-            });
-            this.notifyObservers(this.currentConversationSubject, this.currentConversation);
+            const messageNotification: MessageNotification = res.data as MessageNotification;
+            this.unreadMessages.delete(messageNotification.id);
+            this.currentConversation.numberOfUnreadMessages--;
+            ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
+            ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+        });
+    }
+
+    subscribeMarkAllMessagesAsRead(): void {
+        const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/user/${SessionService.getCurrentUser().id}/messageNotifications/markAllAsRead`;
+        this.stompService.watch(URL, (res: any) => {
+            if (!res.success){
+                console.log(res.message);
+                return;
+            }
+            this.unreadMessages.clear();
+            this.currentConversation.numberOfUnreadMessages = 0;
+            ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
+            ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
         });
     }
  
-     subscribeConversationChannels(conversations: Conversation[]): void {
-        this.subscribeMessageNotificationChannel();
-         conversations.forEach(conversation => {
-             const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${conversation.id}/messages`;
-            // const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/user/${SessionService.getCurrentUser().id}/conversations/${conversation.id}/messages`;
+    subscribeConversationChannels(conversations: Map<number, Conversation>): void {
+         conversations.forEach((value, key) => {
+             const conversationKey: number = key;
+             const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${conversationKey}/messages`;
              this.stompService.watch(URL, (res: any) => {
+
                 if (!res.success){
                     console.log(res.message);
                 }
 
-                console.log(res.data);
-                const message: Message = res.data as Message;
+                const receivedMessage: Message = res.data as Message;
                 
-                const conversation = this.conversations.find(conv => conv.id === message.conversationId);
+                const foundConversation: Conversation = this.conversations.get(receivedMessage.conversationId);
                 
-                if (conversation) {
-                    if (conversation.messages == null){
-                        conversation.messages = [];
-                    }
-                    conversation.messages.push(message);
-                    conversation.lastestMessage = message;
-
-                    if (this.currentConversation && this.currentConversation.id == conversation.id) {
-                        
-                        conversation.messages.forEach(message => {
-                            const messageNotifications = message.notifications.filter(notification => notification.userId === SessionService.getCurrentUser().id);
-                            messageNotifications.forEach(messageNotification => {
-                                this.stompService.publish(`/app/a/${SessionService.getCurrentUser().id}/messageNotifications/${messageNotification.id}/markAsRead`);
-                                messageNotification.read = true;
-                            });
-                            conversation.numberOfUnreadMessages = 0;
-                        });
-
-                        this.currentConversation = conversation;
-                        this.notifyObservers(this.currentConversationSubject, this.currentConversation);
-                    }else {
-                       conversation.numberOfUnreadMessages++;
-                    }
+                foundConversation.messages.push(receivedMessage);
+                foundConversation.lastestMessage = receivedMessage;
+                
+                if (this.currentConversation && this.currentConversation.id == foundConversation.id) {
+                    this.stompService.publish(`/app/user/${SessionService.getCurrentUser().id}/message/${receivedMessage.id}/messageNotifications/markAsRead`);
+                }else {
+                    foundConversation.numberOfUnreadMessages++;
                 }
 
-                this.conversations = this.conversations.filter(conv => conv.id !== conversation.id);
-                this.conversations.unshift(conversation);
-
-                 this.notifyObservers(this.conversationsSubject, this.conversations);
+                this.conversations.set(foundConversation.id, foundConversation);
+                ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
              });
          });
      }
  
-     
- 
-     unsubscribeConversationChannel(deletedConversation: Conversation): void {
-         const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${deletedConversation.id}/textMessages`;
-         this.websocketService.unsubscribe(URL, () => {
+     unsubscribeConversationChannel(conversationId: number): void {
+         const URL: string = `${WEB_SOCKET_PUBLIC_ENDPOINT}/conversations/${conversationId}/textMessages`;
+         this.stompService.unwatch(URL, () => {
+            console.log(`Unsubscribed from ${URL}`);
          });
      }
  
      sendTextMessageToChannel(conversation: Conversation, message: Message): void {
          const URL: string = `/app/conversations/${conversation.id}/textMessages`;
-        //  this.websocketService.send(URL, message);
-        // this.newWebSocketService.sendMessage(URL, message);
-        // this.stompService.publish({URL, message});
         this.stompService.publish(URL, message);
      }
 

@@ -14,4 +14,8 @@ export class Conversation {
         this.messages = [];
         this.members = [];
     }
+
+    static isGroupConversation(conversation: Conversation): boolean {
+        return conversation.instanceOf === "GROUP";
+    }
 }
