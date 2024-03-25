@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Conversation } from 'src/app/models/conversation';
 import { Message } from 'src/app/models/message';
@@ -37,6 +37,8 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   private unreadMessagesSubscription: Subscription;
 
   private LEAVE_GROUP_CONTENT: string = "Are you sure to leave this group";
+
+  private firstUreadMessageId: number = -1;
   
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
@@ -55,8 +57,6 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
     this.unreadMessagesSubscription = this.conversationService.onUnreadMessagesChanged().subscribe(
       (unreadMessages: Map<number, MessageNotification>) => {
         this.unreadMessages = unreadMessages;
-        console.log("UNREADMESSAGES");
-        console.log(this.unreadMessages);
       });
 
     this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
@@ -72,39 +72,55 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit() {
-    this.messageElements.changes.subscribe(
-      (messageElements: QueryList<ElementRef>) => {
-
-        if (this.messageElements.length == 0 || !this.unreadMessages) {
-          console.log("sadasd");
-          this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
-          return;
-        }
-
-        const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
-        console.log("FIRST");
-        console.log(this.unreadMessages);
-        const messageElement = messageElements.find(messageElement => 
-          messageElement.nativeElement.id == firstUnreadMessage.id
-        );
-
-        if (messageElement == null) {
-          return;
-        }
-
-        this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight * 2);
-        this.conversationService.markAllMessagesAsRead(this.conversation.id);
+    combineLatest([
+      this.messageElements.changes,
+      this.conversationService.onUnreadMessagesChanged()
+    ]).subscribe(([messageElements, unreadMessages]) => {
+      this.unreadMessages = unreadMessages;
+  
+      if (this.messageElements.length == 0 || !this.unreadMessages) {
+        this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
+        return;
       }
-    );
+
+      const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
+      
+      this.firstUreadMessageId = firstUnreadMessage.messageId;
+      
+      const messageElement = messageElements.find(messageElement => 
+        messageElement.nativeElement.id == firstUnreadMessage.messageId
+      );
+
+
+      // console.log(messageElement.nativeElement);
+
+      if (messageElement == null) {
+        return;
+      }
+
+      this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight);
+      // console.log(messageElement.nativeElement.offsetTop);
+      // this.conversationService.markAllMessagesAsRead(this.conversation.id);
+    });
+
+    // this.messageElements.changes.subscribe(
+    //   (messageElements: QueryList<ElementRef>) => {
+
+        
+    //   }
+    // );
   }
 
-  isFirstUnreadMessage(id: number): boolean {
-    if (this.unreadMessages.size == 0) {
-      return false;
-    }
+  isFirstUnreadMessage(messageId: number): boolean {
+    // if (this.unreadMessages.size == 0) {
+    //   return false;
+    // }
 
-    const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
-    return firstUnreadMessage.id === id;
+    // const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
+    // return firstUnreadMessage.id === id;
+    // return this.unreadMessages.has(id);
+
+    return this.firstUreadMessageId === messageId;
   }
 
   getAvatar() {
