@@ -5,9 +5,7 @@ import { FindContactModalService } from 'src/app/services/find-contact-modal.ser
 import { SessionService } from 'src/app/services/session.service';
 import { UserService } from 'src/app/services/user.service';
 import { OutgoingContactRequestService } from 'src/app/services/outcoming-contact-request.service';
-import { ConversationService } from 'src/app/services/conversation.service';
-import { IndividualConversation } from 'src/app/models/individual-conversation';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
 
 @Component({
   selector: 'app-find-contact-modal',
@@ -26,8 +24,7 @@ export class FindContactModelComponent implements OnInit {
 
   constructor(private findContactModalService: FindContactModalService,
     private outgoingContactRequestService: OutgoingContactRequestService,
-    private userService: UserService,
-    private conversationService: ConversationService
+    private userService: UserService
     ){
 
   }
@@ -36,7 +33,7 @@ export class FindContactModelComponent implements OnInit {
   }
 
   getAvatar(): string {
-    return Util.getBase64FromBinary(this.foundUser.avatarFile.data, this.foundUser.avatarFile.contentType);
+    return FileUtil.getBase64FromBinary(this.foundUser.avatarFile.data, this.foundUser.avatarFile.contentType);
   }
 
   onSend(): void {
@@ -87,30 +84,6 @@ export class FindContactModelComponent implements OnInit {
       this.errorMessage = "Wrong user id";
     }
 
-  }
-
-  onStart(): void {
-
-    if (!this.foundUser) {
-      return;
-    }
-
-    const individualConversation: IndividualConversation  = new IndividualConversation();
-    const member1: User = new User();
-    const member2: User = new User();
-
-    member1.id = SessionService.getCurrentUser().id;
-    member2.id = this.foundUser.id;
-
-    individualConversation.members = [member1, member2];
-    this.conversationService.createConversation(individualConversation).subscribe(
-      (successRes: any) => {
-        this.onClose();
-      },
-      (errorRes: any) => {
-        this.errorMessage = errorRes.error.message;
-      }
-    );
   }
 
   onClose(): void {

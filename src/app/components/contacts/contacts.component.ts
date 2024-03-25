@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { SessionService } from 'src/app/services/session.service';
 import { ContactService } from 'src/app/services/contact.service';
 import { User } from 'src/app/models/user';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
 
 @Component({
   selector: 'app-contacts',
@@ -44,7 +44,7 @@ export class ContactsComponent implements OnInit {
   getAvatar(contact: Contact): string {
     const CURRENT_USER: User = SessionService.getCurrentUser();
     const user: User = (CURRENT_USER.id === contact.sender.id) ? contact.receiver : contact.sender;
-    return Util.getBase64FromBinary(user.avatarFile.data, user.avatarFile.contentType);
+    return FileUtil.getBase64FromBinary(user.avatarFile.data, user.avatarFile.contentType);
 
   }
 

@@ -36,6 +36,7 @@ import { ToastsComponent } from './components/toasts/toasts.component';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { StompService } from './services/stomp.service';
 import { ViewModalComponent } from './components/view-modal/view-modal.component';
+import { CommonModule } from '@angular/common';
 
 
 @NgModule({
@@ -69,6 +70,7 @@ import { ViewModalComponent } from './components/view-modal/view-modal.component
     ViewModalComponent
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     RouterModule,
     FormsModule,
@@ -78,8 +80,8 @@ import { ViewModalComponent } from './components/view-modal/view-modal.component
     AppRoutingModule
   ],
   providers: [
-    RxStompService, // Provide RxStompService here
-    StompService // Provide your StompService
+    RxStompService,
+    StompService
   ],
   bootstrap: [AppComponent]
 })

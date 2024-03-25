@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { ViewModalService } from 'src/app/services/view-modal.service';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
 
 @Component({
   selector: 'app-view-modal',
@@ -32,7 +32,7 @@ export class ViewModalComponent implements OnInit {
 
   getData(): string {
     const multimediaMessage: MultimediaMessage = this.message as MultimediaMessage;
-    return Util.getBase64FromBinary(multimediaMessage.dataFile.data, multimediaMessage.dataFile.contentType);
+    return FileUtil.getBase64FromBinary(multimediaMessage.dataFile.data, multimediaMessage.dataFile.contentType);
   }
 
   getContent(): string {

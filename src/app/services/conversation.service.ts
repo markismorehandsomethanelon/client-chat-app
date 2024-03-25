@@ -29,7 +29,7 @@ export class ConversationService {
  
      private conversationsSubject: Subject<Map<number, Conversation>> = new Subject<Map<number, Conversation>>();
      private currentConversationSubject: Subject<Conversation> = new Subject<Conversation>();
-     private unreadMessagesSubject: Subject<Map<number, Message>> = new Subject<Map<number, Message>>();
+     private unreadMessagesSubject: Subject<Map<number, MessageNotification>> = new Subject<Map<number, MessageNotification>>();
     
      constructor(private http: HttpClient, 
         private stompService: StompService) {
@@ -44,7 +44,7 @@ export class ConversationService {
          return this.currentConversationSubject.asObservable();
      }
 
-     onUnreadMessagesChanged(): Observable<Map<number, Message>> {
+     onUnreadMessagesChanged(): Observable<Map<number, MessageNotification>> {
         return this.unreadMessagesSubject.asObservable();
     }
 
@@ -82,33 +82,35 @@ export class ConversationService {
         );
     }
 
-     createConversation(conversation: Conversation): Observable<any>{
-         return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
-             catchError(error => {
-                 console.log(error)
-                 throw error;
-             }),
-             map((body: any) => {
-                 const newConversation: Conversation = body.data;
+    //  createConversation(conversation: Conversation): Observable<any>{
+    //      return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
+    //          catchError(error => {
+    //              console.log(error)
+    //              throw error;
+    //          }),
+    //          map((body: any) => {
+    //              const newConversation: Conversation = body.data;
+    //              this.conversations.set(newConversation.id, newConversation);
+    //              this.subscribeConversationChannels(new Map([[newConversation.id, newConversation]]));
+    //              ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
+    //          })
+    //      );
+    //  }
+
+     createGroupConversation(conversation: Conversation): Observable<any>{
+        return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
+            catchError(error => {
+                console.log(error)
+                throw error;
+            }),
+            map((body: any) => {
+                const newConversation: Conversation = body.data;
                  this.conversations.set(newConversation.id, newConversation);
                  this.subscribeConversationChannels(new Map([[newConversation.id, newConversation]]));
-                 ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
-             })
-         );
-     }
-
-    //  createGroupConversation(conversation: Conversation): Observable<any>{
-    //     return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
-    //         catchError(error => {
-    //             console.log(error)
-    //             throw error;
-    //         }),
-    //         map((body: any) => {
-    //             this.conversations.unshift(body.data);
-    //             this.subscribeConversationChannels([body.data]);
-    //         })
-    //     );
-    // }
+                 ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);;
+            })
+        );
+    }
  
      updateConversation(conversation: Conversation): Observable<any> {
         console.log(conversation); 
@@ -192,6 +194,10 @@ export class ConversationService {
          );
      }
 
+     markAllMessagesAsRead(conversationId: number): void {
+        this.stompService.publish(`/app/user/${SessionService.getCurrentUser().id}/conversation/${conversationId}/messageNotifications/markAllAsRead`);
+     }
+
      subscribeMarkMessageAsRead(): void {
         const URL: string = `${WEB_SOCKET_PRIVATE_ENDPOINT}/user/${SessionService.getCurrentUser().id}/messageNotifications/markAsRead`;
         this.stompService.watch(URL, (res: any) => {
@@ -240,6 +246,8 @@ export class ConversationService {
                 
                 if (this.currentConversation && this.currentConversation.id == foundConversation.id) {
                     this.stompService.publish(`/app/user/${SessionService.getCurrentUser().id}/message/${receivedMessage.id}/messageNotifications/markAsRead`);
+                    this.currentConversation = foundConversation;
+                    ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
                 }else {
                     foundConversation.numberOfUnreadMessages++;
                 }

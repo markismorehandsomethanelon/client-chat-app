@@ -3,7 +3,7 @@ import { User } from 'src/app/models/user';
 import { UserProfileModalService } from 'src/app/services/user-profile-modal.service';
 import { UserService } from 'src/app/services/user.service';
 import { catchError, map } from 'rxjs/operators';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
 
 declare const bootstrap: any;
 
@@ -56,7 +56,7 @@ export class UserProfileModalComponent implements OnInit {
 
 
   getAvatar(): string {
-    return Util.getBase64FromBinary(this.user.avatarFile.data, this.user.avatarFile.contentType);
+    return FileUtil.getBase64FromBinary(this.user.avatarFile.data, this.user.avatarFile.contentType);
   }
 
   changeFile(event: any): void {

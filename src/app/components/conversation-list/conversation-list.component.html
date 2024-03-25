@@ -22,13 +22,13 @@
     </div>
     <!-- Conversations -->
     <div class="flex-grow-1 overflow-auto">
-        <div class="left-list-group list-group">
+        <div class="list-group">
             <a class="list-group-item list-group-item-action text-secondary"
-            *ngFor="let conversation of filteredConversations"
+            *ngFor="let conversation of getConversationsAsArray()" 
             [conversation]="conversation"
             [routerLink]="['/conversations', conversation.id]"
             routerLinkActive="selected"
-            >
+            >   
                 <div class="d-flex align-items-center">
                     <img class="rounded-circle" [src]="getConversationAvatar(conversation)" alt=" " width="50" height="50"/>
                     <div class="ms-3 min-w-0 w-100">
@@ -41,10 +41,9 @@
                         <div class="d-flex justify-content-between mt-2">
                             <p class="my-auto small text-truncate w-100">{{getLastestMessage(conversation)}}</p>
                             <p *ngIf="conversation.numberOfUnreadMessages != 0" class="my-auto badge bg-success badge-pill ms-3">
-                                <ng-container *ngIf="conversation.numberOfUnreadMessages > 99">99+</ng-container>
-                                <ng-container *ngIf="conversation.numberOfUnreadMessages <= 99">{{conversation.numberOfUnreadMessages}}</ng-container>
+                                <ng-container *ngIf="conversation.numberOfUnreadMessages > 5">5+</ng-container>
+                                <ng-container *ngIf="conversation.numberOfUnreadMessages <= 5">{{conversation.numberOfUnreadMessages}}</ng-container>
                             </p>
-
                         </div>
                     </div>
                 </div>

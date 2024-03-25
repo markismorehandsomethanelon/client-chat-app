@@ -1,14 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Conversation } from 'src/app/models/conversation';
 import { GroupConversation } from 'src/app/models/group-conversation';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { TextMessage } from 'src/app/models/text-message';
 import { ConversationService } from 'src/app/services/conversation.service';
-import { FileDownloadService } from 'src/app/services/file-download.service';
 import { SessionService } from 'src/app/services/session.service';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
+import { HashMapUtil } from 'src/app/utils/hashmap-util';
 
 @Component({
   selector: 'app-conversation-list',
@@ -26,16 +25,16 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   avatarsFetched: boolean = false;
 
-  constructor(private conversationService: ConversationService, 
-    private router: Router,
-    private fileDownloadService: FileDownloadService){
+  constructor(private conversationService: ConversationService){
   }
 
   ngOnInit(): void {
     this.conversationsSubscription = this.conversationService.onConversationsChanged()
-      .subscribe((conversations: Map<number, Conversation>) => {
-          this.conversations = conversations;
+      .subscribe((changedConversations: Map<number, Conversation>) => {
+          this.conversations = changedConversations;
           this.filteredConversations = this.conversations;
+          // console.log("HERE");
+          // console.log(this.conversations);
       });
 
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
@@ -45,17 +44,22 @@ export class ConversationListComponent implements OnInit, OnDestroy {
     this.conversationsSubscription.unsubscribe();
   }
 
+  getConversationsAsArray(): Conversation[] {
+    console.log(this.filteredConversations);
+    return HashMapUtil.getAsArray(this.filteredConversations);
+  }
+
   getConversationAvatar(conversation: Conversation): string {
 
     if (GroupConversation.isGroupConversation(conversation)){
       const groupConversation: GroupConversation = (conversation as GroupConversation);
-      return Util.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
+      return FileUtil.getBase64FromBinary(groupConversation.avatarFile.data, groupConversation.avatarFile.contentType);
     }
-    
+
     const CURRENT_USER = SessionService.getCurrentUser();
     const otherUser = conversation.members.find(member => member.id !== CURRENT_USER.id);
 
-    return Util.getBase64FromBinary(otherUser.avatarFile.data, otherUser.avatarFile.contentType);
+    return FileUtil.getBase64FromBinary(otherUser.avatarFile.data, otherUser.avatarFile.contentType);
   }
 
   getConversationName(conversation: Conversation): string {    

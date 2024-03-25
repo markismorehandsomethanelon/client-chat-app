@@ -5,7 +5,7 @@ import { ConversationService } from 'src/app/services/conversation.service';
 import { FileDownloadService } from 'src/app/services/file-download.service';
 import { GroupConversationModalService } from 'src/app/services/group-conversation-modal.service';
 import { SessionService } from 'src/app/services/session.service';
-import { Util } from 'src/app/utils/util';
+import { FileUtil } from 'src/app/utils/file-util';
 
 @Component({
   selector: 'app-group-conversation-modal',
@@ -101,7 +101,7 @@ export class GroupConversationModalComponent implements OnInit {
   }
 
   getAvatar() {
-    return Util.getBase64FromBinary(this.groupConversation.avatarFile.data, this.groupConversation.avatarFile.contentType);
+    return FileUtil.getBase64FromBinary(this.groupConversation.avatarFile.data, this.groupConversation.avatarFile.contentType);
   }
 
   changeFile(event: any): void {
