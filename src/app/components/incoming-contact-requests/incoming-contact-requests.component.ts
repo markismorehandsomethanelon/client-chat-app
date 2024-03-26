@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Contact } from 'src/app/models/contact';
 import { IncomingContactRequestService } from 'src/app/services/incoming-contact-request.service';
@@ -12,7 +12,7 @@ import { FileUtil } from 'src/app/utils/file-util';
   templateUrl: './incoming-contact-requests.component.html',
   styleUrls: ['./incoming-contact-requests.component.css']
 })
-export class IncomingContactRequestComponent implements OnInit {
+export class IncomingContactRequestComponent implements OnInit, OnDestroy {
 
   private incomingContactRequests: Contact[] = [];
   filteredIncomingContactRequests: Contact[] = [];
@@ -37,6 +37,20 @@ export class IncomingContactRequestComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.incomingContactRequestsSubscription.unsubscribe();
+  }
+
+  search(value: string): void {
+    if (value === ''){
+      this.filteredIncomingContactRequests = this.incomingContactRequests;
+      return;
+    }
+
+    const foundIncomingContactRequests: Contact[] = this.incomingContactRequests.filter(contact => {
+      const lowercaseValue = value.toLowerCase();
+      return contact.sender.name.toLowerCase().includes(lowercaseValue);
+    });
+
+    this.filteredIncomingContactRequests = foundIncomingContactRequests;
   }
 
   getAvatar(contact: Contact): string {

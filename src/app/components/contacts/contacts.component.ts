@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmModalService } from 'src/app/services/confirm-modal.service';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { Contact } from 'src/app/models/contact';
@@ -13,12 +13,12 @@ import { FileUtil } from 'src/app/utils/file-util';
   templateUrl: './contacts.component.html',
   styleUrls: ['./contacts.component.css']
 })
-export class ContactsComponent implements OnInit {
+export class ContactsComponent implements OnInit, OnDestroy {
 
   private contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
 
-  private conversationsSubscription: Subscription;
+  private contactsSubscription: Subscription;
 
   private DELETE_CONTACT_CONTENT: string = "Are you sure to delete this contact?";
 
@@ -27,7 +27,7 @@ export class ContactsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.contactService.onContactsChanged().subscribe(
+    this.contactsSubscription = this.contactService.onContactsChanged().subscribe(
       (contacts: Contact[]) => {
         this.contacts = contacts;
         this.filteredContacts = contacts;
@@ -38,14 +38,31 @@ export class ContactsComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
+    this.contactsSubscription.unsubscribe();
+  }
 
+  search(value: string): void {
+    if (value === ''){
+      this.filteredContacts = this.contacts;
+      return;
+    }
+
+    const foundContacts: Contact[] = this.contacts.filter(contact => {
+      const lowercaseValue = value.toLowerCase();
+      const CURRENT_USER = SessionService.getCurrentUser();
+      
+      const foundName: string = (contact.sender.id === CURRENT_USER.id) ? contact.receiver.name : contact.sender.name;
+
+      return foundName.toLowerCase().includes(lowercaseValue);
+    });
+
+    this.filteredContacts = foundContacts;
   }
 
   getAvatar(contact: Contact): string {
     const CURRENT_USER: User = SessionService.getCurrentUser();
     const user: User = (CURRENT_USER.id === contact.sender.id) ? contact.receiver : contact.sender;
     return FileUtil.getBase64FromBinary(user.avatarFile.data, user.avatarFile.contentType);
-
   }
 
   getContactName(contact: Contact): string {

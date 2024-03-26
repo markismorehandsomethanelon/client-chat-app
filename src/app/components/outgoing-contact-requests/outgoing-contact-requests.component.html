@@ -9,7 +9,7 @@
             <span class="input-group-text">
                 <i class="fas fa-search"></i>
             </span>
-            <input type="text" class="form-control" placeholder="Search...">
+            <input type="text" class="form-control" placeholder="Search..." (input)="search($event.target.value)">
         </div>
     </div>
     <!-- Contacts -->
@@ -21,7 +21,7 @@
                         <div class="d-flex align-items-center">
                             <img class="rounded-circle" [src]="getAvatar(outgoingContactRequest)" alt=" " width="50" height="50"/>
                             <div class="ms-3 w-100">
-                                <div class="my-auto text-truncate font-weight-bold flex-grow-1">{{outgoingContactRequest.sender.name}}</div>
+                                <div class="my-auto text-truncate font-weight-bold flex-grow-1">{{outgoingContactRequest.receiver.name}}</div>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end align-items-center">
