@@ -42,8 +42,9 @@
                     <div class="text-center text-danger small border-bottom border-danger p-2">Unread messages</div>
                 </ng-container>
                 <div [ngSwitch]="isSentMessage(message)" #messageElements id="{{message.id}}">
-                    <app-sent-message *ngSwitchCase="true" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
-                    <app-received-message *ngSwitchCase="false" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-received-message>
+                    <!-- <app-sent-message *ngSwitchCase="true" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
+                    <app-received-message *ngSwitchCase="false" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-received-message> -->
+                    <app-message [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-message>
                 </div>
             </ng-container>
         </div>

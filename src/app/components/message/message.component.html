@@ -1,5 +1,5 @@
-<div class="d-flex justify-content-start py-3">
-    <div class="message-wrapper bg-light-grey rounded p-2 text-secondary">
+<div class="d-flex justify-content-start py-3" [ngClass]="{'justify-content-end': isSentMessage(), 'justify-content-start': !isSentMessage()}">
+    <div class="message-wrapper rounded p-2" [ngClass]="{'bg-success text-light': isSentMessage(), 'bg-light-grey text-secondary': !isSentMessage()}" >
         <div class="d-flex flex-column">
             <div class="d-flex align-items-center mb-2">
                 <img class="rounded-circle" [src]="getAvatar()" alt="Avatar" width="40" height="40">
@@ -28,9 +28,9 @@
                                 <i *ngSwitchCase="'PDF'" class="fa-solid fa-file-pdf fa-3x m-2 me-3"></i>
                                 <i *ngSwitchCase="'OTHER'" class="fa-solid fa-file fa-3x m-2 me-3"></i>
                                 <div class="d-flex flex-column">
-                                    <a [href]="getData()" [download]="getFileName()" class="text-secondary small">{{getFileName()}}</a>
+                                    <a [href]="getData()" [download]="getFileName()" class="small" [ngClass]="{'text-light': isSentMessage(), 'text-secondary': !isSentMessage()}">{{getFileName()}}</a>
                                     <ng-container *ngIf="messageType === 'PDF' || messageType === 'OTHER'">
-                                        <span (click)="openViewModal()" class="clickable text-secondary small mt-2">View now</span>
+                                        <span (click)="openViewModal()" class="clickable small mt-2">View now</span>
                                     </ng-container>
                                 </div>
                             </div>

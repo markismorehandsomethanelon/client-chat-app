@@ -9,8 +9,6 @@ import { ConversationsComponent } from './components/conversations/conversations
 import { RouterModule } from '@angular/router';
 import { ConversationListComponent } from './components/conversation-list/conversation-list.component';
 import { ConversationDetailComponent } from './components/conversation-detail/conversation-detail.component';
-import { SentMessageComponent } from './components/sent-message/sent-message.component';
-import { ReceivedMessageComponent } from './components/received-message/received-message.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { ScrollToBottomDirective } from './directives/scroll-to-bottom.directive';
 import { ContactFeaturesComponent } from './components/contact-features/contact-features.component';
@@ -37,6 +35,7 @@ import { RxStompService } from '@stomp/ng2-stompjs';
 import { StompService } from './services/stomp.service';
 import { ViewModalComponent } from './components/view-modal/view-modal.component';
 import { CommonModule } from '@angular/common';
+import { MessageComponent } from './components/message/message.component';
 
 
 @NgModule({
@@ -46,8 +45,6 @@ import { CommonModule } from '@angular/common';
     ConversationsComponent,
     ConversationListComponent,
     ConversationDetailComponent,
-    SentMessageComponent,
-    ReceivedMessageComponent,
     PageNotFoundComponent,
     ScrollToBottomDirective,
     ContactFeaturesComponent,
@@ -67,7 +64,8 @@ import { CommonModule } from '@angular/common';
     JoinGroupConversationModalComponent,
     FindContactModelComponent,
     ToastsComponent,
-    ViewModalComponent
+    ViewModalComponent,
+    MessageComponent
   ],
   imports: [
     CommonModule,

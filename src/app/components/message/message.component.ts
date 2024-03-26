@@ -1,19 +1,20 @@
-import { Component, HostBinding, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Conversation } from 'src/app/models/conversation';
+import { GroupConversation } from 'src/app/models/group-conversation';
 import { Message } from 'src/app/models/message';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { ViewModalService } from 'src/app/services/view-modal.service';
 import { FileUtil } from 'src/app/utils/file-util';
 import { ViewModalComponent } from '../view-modal/view-modal.component';
-import { Conversation } from 'src/app/models/conversation';
-import { GroupConversation } from 'src/app/models/group-conversation';
+import { SessionService } from 'src/app/services/session.service';
 
 @Component({
-  selector: 'app-received-message',
-  templateUrl: './received-message.component.html',
-  styleUrls: ['./received-message.component.css']
+  selector: 'app-message',
+  templateUrl: './message.component.html',
+  styleUrls: ['./message.component.css']
 })
-export class ReceivedMessageComponent implements OnInit {
+export class MessageComponent implements OnInit {
 
   @Input() messageType: string;
 
@@ -25,6 +26,10 @@ export class ReceivedMessageComponent implements OnInit {
     private viewModalService: ViewModalService ) { }
 
   ngOnInit(): void {
+  }
+
+  isSentMessage(): boolean {
+    return this.message.sender.id === SessionService.getCurrentUser().id;
   }
 
   isOwner(): boolean {
@@ -51,5 +56,4 @@ export class ReceivedMessageComponent implements OnInit {
   openViewModal(): void {
     this.viewModalService.openModal(ViewModalComponent, this.message);
   }
-
 }
