@@ -5,6 +5,8 @@ import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { ViewModalService } from 'src/app/services/view-modal.service';
 import { FileUtil } from 'src/app/utils/file-util';
 import { ViewModalComponent } from '../view-modal/view-modal.component';
+import { Conversation } from 'src/app/models/conversation';
+import { GroupConversation } from 'src/app/models/group-conversation';
 
 @Component({
   selector: 'app-sent-message',
@@ -18,10 +20,19 @@ export class SentMessageComponent implements OnInit {
 
   @Input() message: Message;
 
+  @Input() conversation: Conversation;
+
   constructor(private sanitizer: DomSanitizer,
     private viewModalService: ViewModalService ) { }
 
   ngOnInit(): void {
+  }
+
+  isOwner(): boolean {
+    if (Conversation.isGroupConversation(this.conversation)){
+      return (this.conversation as GroupConversation).ownerId === this.message.sender.id;
+    }
+    return false;
   }
 
   getAvatar(): string {

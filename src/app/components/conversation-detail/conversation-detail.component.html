@@ -1,5 +1,5 @@
 <ng-container *ngIf="conversation">
-    <div class="d-flex flex-column h-100">
+    <div class="d-flex flex-column h-100" [conversation]="conversation">
         <!-- Header -->
         <div class="d-flex justify-content-between border-bottom px-2 py-1 flex-grow-0">
             <div class="d-flex align-items-center" style="width: 40%">
@@ -42,8 +42,8 @@
                     <div class="text-center text-danger small border-bottom border-danger p-2">Unread messages</div>
                 </ng-container>
                 <div [ngSwitch]="isSentMessage(message)" #messageElements id="{{message.id}}">
-                    <app-sent-message *ngSwitchCase="true" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
-                    <app-received-message *ngSwitchCase="false" [message]="message" [messageType]="getMessageType(message)"></app-received-message>
+                    <app-sent-message *ngSwitchCase="true" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-sent-message>
+                    <app-received-message *ngSwitchCase="false" [conversation]="conversation" [message]="message" [messageType]="getMessageType(message)"></app-received-message>
                 </div>
             </ng-container>
         </div>

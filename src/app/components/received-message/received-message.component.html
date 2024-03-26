@@ -3,7 +3,7 @@
         <div class="d-flex flex-column">
             <div class="d-flex align-items-center mb-2">
                 <img class="rounded-circle" [src]="getAvatar()" alt="Avatar" width="40" height="40">
-                <div class="ms-2">
+                <div *ngIf="isOwner()" class="ms-2">
                     <i class="fa-solid fa-key"></i>
                 </div>
                 <div class="ms-2">

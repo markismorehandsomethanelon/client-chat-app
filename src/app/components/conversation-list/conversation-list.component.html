@@ -1,6 +1,6 @@
 <div class="d-flex flex-column h-100">
     <!-- Search bar -->
-    <div class="flex-grow-0">
+    <!-- <div class="flex-grow-0">
         <div class="m-2">
             <select class="form-select">
                 <option value="1">Newest-Oldest</option>
@@ -9,7 +9,7 @@
                 <option value="4">z-a</option>
             </select>
         </div>
-    </div>
+    </div> -->
     <div class="flex-grow-0">
         <div class="m-2 flex-grow-0">
             <div class="input-group">
@@ -24,7 +24,7 @@
     <div class="flex-grow-1 overflow-auto">
         <div class="list-group">
             <a class="list-group-item list-group-item-action text-secondary"
-            *ngFor="let conversation of getConversationsAsArray()" 
+            *ngFor="let conversation of filteredConversations" 
             [conversation]="conversation"
             [routerLink]="['/conversations', conversation.id]"
             routerLinkActive="selected"

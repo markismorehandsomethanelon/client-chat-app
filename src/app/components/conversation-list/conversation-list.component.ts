@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { Conversation } from 'src/app/models/conversation';
 import { GroupConversation } from 'src/app/models/group-conversation';
+import { IndividualConversation } from 'src/app/models/individual-conversation';
 import { MultimediaMessage } from 'src/app/models/multimedia-message';
 import { TextMessage } from 'src/app/models/text-message';
 import { ConversationService } from 'src/app/services/conversation.service';
@@ -18,8 +19,8 @@ import { HashMapUtil } from 'src/app/utils/hashmap-util';
 })
 export class ConversationListComponent implements OnInit, OnDestroy {
 
-  conversations: Map<number, Conversation> = new Map<number, Conversation>();
-  filteredConversations: Map<number, Conversation> = new Map<number, Conversation>();
+  conversations: Conversation[] = [];
+  filteredConversations: Conversation[] = [];
 
   conversationsSubscription: Subscription;
 
@@ -33,35 +34,17 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    // this.router.events.pipe(
-    //   filter(event => event instanceof NavigationEnd)
-    // ).subscribe((event: NavigationEnd) => {
-    //   if (event.url === '/conversations') {
-    //     this.selectedConversationId = undefined;
-    //   }
-    // });
-
     this.conversationsSubscription = this.conversationService.onConversationsChanged()
       .subscribe((changedConversations: Map<number, Conversation>) => {
-          this.conversations = changedConversations;
+          this.conversations = HashMapUtil.getAsArray(changedConversations);
           this.filteredConversations = this.conversations;
       });
-
-      // this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
 
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
   }
 
   ngOnDestroy(): void {
     this.conversationsSubscription.unsubscribe();
-  }
-
-  getConversationsAsArray(): Conversation[] {
-    return Array.from(this.filteredConversations.values()).sort((a, b) => {
-      const aTimestamp = a.lastestMessage ? Number(a.lastestMessage.sentAt) : 0;
-      const bTimestamp = b.lastestMessage ? Number(b.lastestMessage.sentAt) : 0;
-      return bTimestamp - aTimestamp;
-    });
   }
 
   getConversationAvatar(conversation: Conversation): string {
@@ -109,14 +92,23 @@ export class ConversationListComponent implements OnInit, OnDestroy {
 
 
   search(value: string): void {
-    // const filteredConversations = this.conversations.filter(conversation => {
-    //   const lowercaseValue = value.toLowerCase();
-    //   const CURRENT_USER = SessionService.getCurrentUser();
+    if (value === ''){
+      this.filteredConversations = this.conversations;
+      return;
+    }
+
+    const foundConversations = this.filteredConversations.filter(conversation => {
+      const lowercaseValue = value.toLowerCase();
+      const CURRENT_USER = SessionService.getCurrentUser();
       
-    //   return (conversation as any).name.toLowerCase().includes(lowercaseValue) ||
-    //          conversation.members.find(member => member.id !== CURRENT_USER.id && member.name.toLowerCase().includes(lowercaseValue));
-    // });
-    // this.filteredConversations = filteredConversations;
-    // this.router.navigate(['/conversations']);
+      if (GroupConversation.isGroupConversation(conversation)){
+        return (conversation as GroupConversation).name.toLowerCase().includes(lowercaseValue);
+      }else {
+        return (conversation as IndividualConversation).members.find(member => member.id !== CURRENT_USER.id && member.name.toLowerCase().includes(lowercaseValue));
+      }
+    });
+
+    this.filteredConversations = foundConversations;
+    this.router.navigate(['/conversations']);
   }
 }
