@@ -100,6 +100,11 @@ export class ConversationService {
         );
     }
 
+    clearCurrentConversation(): void {
+        this.currentConversation = undefined;
+        ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+    }
+
     //  createConversation(conversation: Conversation): Observable<any>{
     //      return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
     //          catchError(error => {

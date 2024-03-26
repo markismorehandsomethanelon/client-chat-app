@@ -40,6 +40,8 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   private LEAVE_GROUP_CONTENT: string = "Are you sure to leave this group";
 
   private firstUreadMessageId: number = -1;
+
+  private isFirst: boolean = true;
   
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
@@ -77,9 +79,13 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
     ]).subscribe(([messageElements, unreadMessages]) => {
       
       this.unreadMessages = unreadMessages;
-
-      console.log(unreadMessages);
       
+      if (!this.isFirst) {
+        return;
+      }
+
+      this.isFirst = false;
+
       if (this.messageElements.length == 0 || this.unreadMessages.size == 0) {
         this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
         return;
@@ -99,6 +105,7 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
       }
 
       this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight);
+      console.log("HERE");
       this.conversationService.markAllMessagesAsRead(this.conversation.id);
     });
 

@@ -12,6 +12,7 @@ import { UserService } from 'src/app/services/user.service';
 import { GroupConversation } from 'src/app/models/group-conversation';
 import { SessionService } from 'src/app/services/session.service';
 import { Observable, Subscription } from 'rxjs';
+import { ConversationService } from 'src/app/services/conversation.service';
 
 @Component({
   selector: 'app-conversations',
@@ -29,7 +30,8 @@ export class ConversationsComponent implements OnInit {
       private changePasswordModalService: ChangePasswordModalService,
       private joinConversationModalService: JoinGroupConversationModalService,
       private groupConversationModalService: GroupConversationModalService,
-      private userService: UserService
+      private userService: UserService,
+      private conversationService: ConversationService
     ) {}
   
   ngOnInit(): void {
@@ -38,6 +40,7 @@ export class ConversationsComponent implements OnInit {
       this.currentUser = user;
       SessionService.setCurrentUser(this.currentUser);
     });
+    this.conversationService.clearCurrentConversation();
   }
 
   ngOnDestroy(): void {
