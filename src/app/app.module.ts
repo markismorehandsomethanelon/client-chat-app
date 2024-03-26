@@ -36,6 +36,7 @@ import { StompService } from './services/stomp.service';
 import { ViewModalComponent } from './components/view-modal/view-modal.component';
 import { CommonModule } from '@angular/common';
 import { MessageComponent } from './components/message/message.component';
+import { VoiceRecorderComponent } from './components/voice-recorder/voice-recorder.component';
 
 
 @NgModule({
@@ -65,7 +66,8 @@ import { MessageComponent } from './components/message/message.component';
     FindContactModelComponent,
     ToastsComponent,
     ViewModalComponent,
-    MessageComponent
+    MessageComponent,
+    VoiceRecorderComponent
   ],
   imports: [
     CommonModule,

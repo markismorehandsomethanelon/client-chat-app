@@ -56,7 +56,7 @@
                     <input #fileInput type="file" class="d-none" (change)="onFileSelected($event)">
                     <i class="fas fa-paperclip py-3 px-1" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn">
+                <button (click)="openVoiceRecorderModal()" type="button" class="btn">
                     <i class="fas fa-microphone py-3 px-1" aria-hidden="true"></i>
                 </button>
             </div>

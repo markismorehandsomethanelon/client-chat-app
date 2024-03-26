@@ -18,6 +18,8 @@ import { FileUtil } from 'src/app/utils/file-util';
 import { GroupConversation } from 'src/app/models/group-conversation';
 import { FileData } from 'src/app/models/file-data';
 import { MessageNotification } from 'src/app/models/message-notification';
+import { VoiceRecorderComponent } from '../voice-recorder/voice-recorder.component';
+import { VoiceRecorderModalService } from 'src/app/services/voice-recorder-modal.service';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -44,6 +46,7 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
     private confirmModalService: ConfirmModalService,
+    private voiceRecorderModalService: VoiceRecorderModalService,
     private router: Router) {}
 
   ngOnInit(): void {
@@ -208,6 +211,10 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
 
       reader.readAsDataURL(selectedFile);
     }
+  }
+
+  openVoiceRecorderModal(): void {
+    this.voiceRecorderModalService.openModal(VoiceRecorderComponent);
   }
 
   onLeaveGroupCallBack(): void {
