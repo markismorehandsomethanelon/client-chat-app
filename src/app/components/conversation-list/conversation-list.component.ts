@@ -41,8 +41,6 @@ export class ConversationListComponent implements OnInit, OnDestroy {
     //   }
     // });
 
-    console.log("SELECTED CONVERSATION" + this.selectedConversationId);
-
     this.conversationsSubscription = this.conversationService.onConversationsChanged()
       .subscribe((changedConversations: Map<number, Conversation>) => {
           this.conversations = changedConversations;
@@ -50,9 +48,6 @@ export class ConversationListComponent implements OnInit, OnDestroy {
       });
 
       // this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
-
-    this.conversationService.subscribeMarkAllMessagesAsRead();
-    this.conversationService.subscribeMarkMessageAsRead();
 
     this.conversationService.findByMember(SessionService.getCurrentUser()).subscribe();
   }

@@ -32,6 +32,7 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
 
   conversation: Conversation;
   unreadMessages: Map<number, MessageNotification> = new Map<number, MessageNotification>();
+  isFirstSelected: boolean = false;
 
   private conversationSubscription: Subscription;
   private unreadMessagesSubscription: Subscription;
@@ -54,10 +55,8 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
       this.conversationService.findUnreadMessages(this.conversation.id).subscribe();
     });
 
-    this.unreadMessagesSubscription = this.conversationService.onUnreadMessagesChanged().subscribe(
-      (unreadMessages: Map<number, MessageNotification>) => {
-        this.unreadMessages = unreadMessages;
-      });
+    this.conversationService.subscribeMarkMessageAsRead();
+    this.conversationService.subscribeMarkAllMessagesAsRead();
 
     this.conversationSubscription = this.conversationService.onCurrentConversationChanged().subscribe(
       (conversation: Conversation) => {
@@ -72,13 +71,16 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit() {
-    combineLatest([
+    this.unreadMessagesSubscription = combineLatest([
       this.messageElements.changes,
       this.conversationService.onUnreadMessagesChanged()
     ]).subscribe(([messageElements, unreadMessages]) => {
+      
       this.unreadMessages = unreadMessages;
-  
-      if (this.messageElements.length == 0 || !this.unreadMessages) {
+
+      console.log(unreadMessages);
+      
+      if (this.messageElements.length == 0 || this.unreadMessages.size == 0) {
         this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
         return;
       }
@@ -92,23 +94,15 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
       );
 
 
-      // console.log(messageElement.nativeElement);
-
       if (messageElement == null) {
         return;
       }
 
       this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight);
-      // console.log(messageElement.nativeElement.offsetTop);
-      // this.conversationService.markAllMessagesAsRead(this.conversation.id);
+      this.conversationService.markAllMessagesAsRead(this.conversation.id);
     });
 
-    // this.messageElements.changes.subscribe(
-    //   (messageElements: QueryList<ElementRef>) => {
 
-        
-    //   }
-    // );
   }
 
   isFirstUnreadMessage(messageId: number): boolean {
@@ -164,6 +158,9 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   sendTextMessage(inputElement: HTMLInputElement): void {
+    if (inputElement.value.trim() === '') {
+      return;
+    }
     const message: TextMessage = new TextMessage();
     const sender: User = new User();
 

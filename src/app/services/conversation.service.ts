@@ -226,10 +226,10 @@ export class ConversationService {
             const messageNotification: MessageNotification = res.data as MessageNotification;
             this.unreadMessages.delete(messageNotification.id);
             this.currentConversation.numberOfUnreadMessages = 0;
+            this.conversations.get(this.currentConversation.id).numberOfUnreadMessages = 0;
             ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
             ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
-
-            console.log("NOTICE IS CHANGED");
+            ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
         });
     }
 
@@ -240,10 +240,13 @@ export class ConversationService {
                 console.log(res.message);
                 return;
             }
+            console.log("ASD");
             this.unreadMessages.clear();
             this.currentConversation.numberOfUnreadMessages = 0;
+            this.conversations.get(this.currentConversation.id).numberOfUnreadMessages = 0;
             ObserverUtil.notifyObservers(this.unreadMessagesSubject, this.unreadMessages);
             ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
+            ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
         });
     }
  
