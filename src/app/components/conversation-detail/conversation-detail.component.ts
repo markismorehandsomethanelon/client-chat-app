@@ -41,8 +41,6 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
 
   private firstUreadMessageId: number = -1;
 
-  private isFirst: boolean = true;
-  
   constructor(private route: ActivatedRoute, private conversationService: ConversationService,
     private groupConversationModalService: GroupConversationModalService,
     private confirmModalService: ConfirmModalService,
@@ -73,24 +71,21 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit() {
+
     this.unreadMessagesSubscription = combineLatest([
       this.messageElements.changes,
       this.conversationService.onUnreadMessagesChanged()
     ]).subscribe(([messageElements, unreadMessages]) => {
       
       this.unreadMessages = unreadMessages;
-      
-      if (!this.isFirst) {
-        return;
-      }
 
-      this.isFirst = false;
+
+      // this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
 
       if (this.messageElements.length == 0 || this.unreadMessages.size == 0) {
-        this.chatWindow.nativeElement.scrollTop = this.chatWindow.nativeElement.scrollHeight;
         return;
       }
-
+      
       const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
       
       this.firstUreadMessageId = firstUnreadMessage.messageId;
@@ -99,13 +94,7 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
         messageElement.nativeElement.id == firstUnreadMessage.messageId
       );
 
-
-      if (messageElement == null) {
-        return;
-      }
-
       this.chatWindow.nativeElement.scrollTop = messageElement.nativeElement.offsetTop - (messageElement.nativeElement.scrollHeight);
-      console.log("HERE");
       this.conversationService.markAllMessagesAsRead(this.conversation.id);
     });
 
@@ -113,14 +102,6 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
   }
 
   isFirstUnreadMessage(messageId: number): boolean {
-    // if (this.unreadMessages.size == 0) {
-    //   return false;
-    // }
-
-    // const firstUnreadMessage: MessageNotification = this.unreadMessages.values().next().value;
-    // return firstUnreadMessage.id === id;
-    // return this.unreadMessages.has(id);
-
     return this.firstUreadMessageId === messageId;
   }
 

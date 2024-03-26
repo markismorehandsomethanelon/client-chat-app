@@ -57,7 +57,11 @@ export class ConversationListComponent implements OnInit, OnDestroy {
   }
 
   getConversationsAsArray(): Conversation[] {
-    return HashMapUtil.getAsArray(this.filteredConversations);
+    return Array.from(this.filteredConversations.values()).sort((a, b) => {
+      const aTimestamp = a.lastestMessage ? Number(a.lastestMessage.sentAt) : 0;
+      const bTimestamp = b.lastestMessage ? Number(b.lastestMessage.sentAt) : 0;
+      return bTimestamp - aTimestamp;
+    });
   }
 
   getConversationAvatar(conversation: Conversation): string {

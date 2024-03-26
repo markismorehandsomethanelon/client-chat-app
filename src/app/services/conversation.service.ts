@@ -105,21 +105,6 @@ export class ConversationService {
         ObserverUtil.notifyObservers(this.currentConversationSubject, this.currentConversation);
     }
 
-    //  createConversation(conversation: Conversation): Observable<any>{
-    //      return this.http.post<any>(this.CONVERSATIONS_BASE_URL, conversation).pipe(
-    //          catchError(error => {
-    //              console.log(error)
-    //              throw error;
-    //          }),
-    //          map((body: any) => {
-    //              const newConversation: Conversation = body.data;
-    //              this.conversations.set(newConversation.id, newConversation);
-    //              this.subscribeConversationChannels(new Map([[newConversation.id, newConversation]]));
-    //              ObserverUtil.notifyObservers(this.conversationsSubject, this.conversations);
-    //          })
-    //      );
-    //  }
-
      createGroupConversation(conversation: Conversation): Observable<any>{
         return this.http.post<any>(this.GROUP_CONVERSATION_BASE_URL, conversation).pipe(
             catchError(error => {

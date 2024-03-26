@@ -36,7 +36,7 @@
             </div>
         </div>
         <!-- Chat window -->
-        <div class="border-bottom overflow-auto flex-grow-1" #chatWindow>
+        <div class="border-bottom overflow-auto flex-grow-1" #chatWindow >
             <ng-container *ngFor="let message of conversation?.messages">
                 <ng-container *ngIf="isFirstUnreadMessage(message.id)">
                     <div class="text-center text-danger small border-bottom border-danger p-2">Unread messages</div>

@@ -12,10 +12,12 @@ export class ScrollToBottomDirective implements AfterViewChecked  {
   }
 
   scrollToBottom(): void {
-    try {
-      this.el.nativeElement.scrollTop = this.el.nativeElement.scrollHeight;
-    } catch(e) {
-      console.log(e);
-    }
+    // const nativeElement = this.el.nativeElement;
+    // const isAtBottom = nativeElement.scrollHeight - nativeElement.scrollTop === nativeElement.clientHeight;
+    // console.log(nativeElement.scrollHeight);
+    // console.log(isAtBottom);
+    // if (isAtBottom) {
+    //   this.el.nativeElement.scrollTop = this.el.nativeElement.scrollHeight;
+    // }
   }
 }
