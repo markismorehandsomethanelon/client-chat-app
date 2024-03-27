@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 import { VoiceRecorderModalService } from 'src/app/services/voice-recorder-modal.service';
 import { VoiceRecorderService } from 'src/app/services/voice-recorder.service';
 import { FileUtil } from 'src/app/utils/file-util';
@@ -11,14 +12,16 @@ import { FileUtil } from 'src/app/utils/file-util';
 })
 export class VoiceRecorderComponent implements OnInit {
 
-  private recordedChunks: Blob[];
-  private isRecording: boolean = false;
+  isRecording: boolean = false;
+
+  @ViewChild('audioPlayer') audioPlayer: ElementRef;
 
   constructor(private voiceRecorderService: VoiceRecorderService,
     private voiceRecorderModalSerivce: VoiceRecorderModalService,
     private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+    
   }
 
   toggleRecording(): void {
@@ -30,23 +33,16 @@ export class VoiceRecorderComponent implements OnInit {
   }
 
   startRecording(): void {
-    this.isRecording = true;
     this.voiceRecorderService.startRecording();
+    this.isRecording = true;
   }
 
-  stopRecording(): void {
-    if (this.isRecording) {
-      this.isRecording = false;
-      this.voiceRecorderService.stopRecording();
-      this.recordedChunks = this.voiceRecorderService.getRecordedChunks();
-    }
+  async stopRecording() {
+    const audioBlob = await this.voiceRecorderService.stopRecording();
+    this.isRecording = false;
+    this.audioPlayer.nativeElement.src = URL.createObjectURL(audioBlob as Blob);
   }
 
-  getRecordedChunks(): SafeUrl {
-    const blob = new Blob(this.recordedChunks, { type: 'audio/wave' });
-    const url = FileUtil.getBase64FromBinary(URL.createObjectURL(blob), 'audio/wave');
-    return this.sanitizer.bypassSecurityTrustUrl(url);
-  }
 
   onClose(): void {
     this.voiceRecorderModalSerivce.closeModal();

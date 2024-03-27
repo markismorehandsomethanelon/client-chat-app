@@ -1,39 +1,33 @@
 import { Injectable } from "@angular/core";
+import * as RecordRTC from 'recordrtc';
 
 @Injectable({
     providedIn: 'root'
 })
 export class VoiceRecorderService {
+    private stream: MediaStream;
+    private recorder: RecordRTC;
 
-  private mediaRecorder: MediaRecorder;
-  private recordedChunks: Blob[] = [];
+    async startRecording() {
+        this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        this.recorder = new RecordRTC(this.stream, { type: 'audio' });
+        this.recorder.startRecording();
+    }
 
-  constructor() { }
+    async stopRecording() {
+        return new Promise((resolve) => {
+            this.recorder.stopRecording(() => {
+                let blob = this.recorder.getBlob();
+                resolve(blob);
 
-  startRecording(): void {
-    this.recordedChunks = [];
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(
-      (stream: MediaStream) => {
-        this.mediaRecorder = new MediaRecorder(stream);
-        this.mediaRecorder.ondataavailable = (event: BlobEvent) => {
-          if (event.data.size > 0) {
-            this.recordedChunks.push(event.data);
-          }
-        };
-        this.mediaRecorder.start();
-      }
-    );
-  }
+                // free up resources
+                this.recorder.destroy();
+                this.recorder = null;
 
-  stopRecording(): void {
-    this.mediaRecorder.stop();
-  }
-
-  getRecordedChunks(): Blob[] {
-    return this.recordedChunks;
-  }
-
-  clearRecordedData(): void {
-    this.recordedChunks = [];
-  }
+                // stop media stream
+                this.stream.getAudioTracks().forEach(track => track.stop());
+                this.stream = null;
+            });
+        });
+    }
 }
