@@ -5,9 +5,7 @@
 <div class="modal-body">
     <div class="d-flex flex-column justify-content-center align-items-center">
         <i class="fa fa-microphone fa-8x text-secondary" (click)="toggleRecording()" [ngClass]="{ 'recording': isRecording }"></i>
-        <audio controls class="mt-3">
-            <source #audioPlayer type="audio/webm">
-        </audio>
+        <audio controls autoplay class="mt-3" #audioPlayer></audio>
     </div>
 </div>
 <div class="modal-footer">
