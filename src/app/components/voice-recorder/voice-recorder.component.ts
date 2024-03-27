@@ -1,6 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { FileData } from 'src/app/models/file-data';
+import { MultimediaMessage } from 'src/app/models/multimedia-message';
+import { User } from 'src/app/models/user';
+import { ConversationService } from 'src/app/services/conversation.service';
 import { VoiceRecorderModalService } from 'src/app/services/voice-recorder-modal.service';
 import { VoiceRecorderService } from 'src/app/services/voice-recorder.service';
 import { FileUtil } from 'src/app/utils/file-util';
@@ -16,9 +20,11 @@ export class VoiceRecorderComponent implements OnInit {
 
   @ViewChild('audioPlayer') audioPlayer: ElementRef;
 
+  audioBob: any;
+
   constructor(private voiceRecorderService: VoiceRecorderService,
     private voiceRecorderModalSerivce: VoiceRecorderModalService,
-    private sanitizer: DomSanitizer) { }
+    private conversationService: ConversationService) { }
 
   ngOnInit(): void {
     
@@ -38,11 +44,28 @@ export class VoiceRecorderComponent implements OnInit {
   }
 
   async stopRecording() {
-    const audioBlob = await this.voiceRecorderService.stopRecording();
+    this.audioBob = await this.voiceRecorderService.stopRecording();
     this.isRecording = false;
-    this.audioPlayer.nativeElement.src = URL.createObjectURL(audioBlob as Blob);
+    this.audioPlayer.nativeElement.src = URL.createObjectURL(this.audioBob as Blob);
   }
 
+  onSend(): void {
+    const reader = new FileReader();
+      reader.onloadend = () => {
+      const message: MultimediaMessage = new MultimediaMessage();
+      const sender: User = new User();
+      sender.id = 1;
+      message.sender = sender;
+      message.sentAt = new Date().toISOString();
+      message.dataFile = new FileData();
+      message.dataFile.contentType = 'audio/wav';
+      message.dataFile.extension = 'wav';
+      message.dataFile.data = reader.result.toString().split(',')[1];
+      message.type = 'AUDIO';
+      this.conversationService.sendMultimediaMessageToChannel(this.conversationService.currentConversation, message);
+    };
+    reader.readAsDataURL(this.audioBob);
+  }
 
   onClose(): void {
     this.voiceRecorderModalSerivce.closeModal();

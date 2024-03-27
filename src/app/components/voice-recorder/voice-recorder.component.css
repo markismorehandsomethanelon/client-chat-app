@@ -18,9 +18,5 @@
 }
 
 .recording:hover {
-    color: darkred; /* Change the color on hover */
-}
-
-
-.modal-body {
+    color: darkred!important; /* Change the color on hover */
 }

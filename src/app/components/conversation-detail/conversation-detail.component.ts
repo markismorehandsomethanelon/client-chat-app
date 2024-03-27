@@ -203,6 +203,7 @@ export class ConversationDetailComponent implements OnInit, AfterViewInit, OnDes
         message.dataFile = new FileData();
         
         message.dataFile.data = e.target.result.toString().split(',')[1];
+        console.log(message.dataFile.data);
         message.dataFile.contentType = selectedFile.type;
         message.dataFile.extension = selectedFile.name.split('.').pop()?.toLowerCase() || '';
     

@@ -24,8 +24,8 @@ export class ConversationService {
      private GROUP_CONVERSATION_BASE_URL = `${API_BASE_URL}/groupConversations`;
      private MESSAGE_NOTIFICATION_BASE_URL = `${API_BASE_URL}/messageNotifications`;
      
-     private conversations: Map<number, Conversation> = new Map();
-     private currentConversation?: Conversation;
+    conversations: Map<number, Conversation> = new Map();
+    currentConversation?: Conversation;
      private unreadMessages: Map<number, MessageNotification> = new Map();
  
      private conversationsSubject: Subject<Map<number, Conversation>> = new Subject<Map<number, Conversation>>();
